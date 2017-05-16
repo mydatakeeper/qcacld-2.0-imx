@@ -3965,22 +3965,6 @@ static void hdd_get_fw_state_cb(void *callback_context)
 	spin_unlock(&hdd_context_lock);
 }
 
-static inline bool is_in_time( a_uint32_t timeout )
-{
-	unsigned long ticks_current = adf_os_ticks();
-	a_uint32_t interval_ms = adf_os_ticks_to_msecs( ticks_current - g_ticks_last_hif_resp );
-
-	if( timeout <= interval_ms )
-	{
-		hddLog(LOG1, FL("timeout=%ums <= interval=%ums (current_ticks=%lu, last_ticks=%lu)")
-			, timeout, interval_ms, ticks_current, g_ticks_last_hif_resp );
-		return false;
-	}
-
-	hddLog(LOG1, FL("timeout=%ums > interval=%ums (current_ticks=%lu, last_ticks=%lu)")
-		, timeout, interval_ms, ticks_current, g_ticks_last_hif_resp );
-	return true;
-}
 /**
  * wlan_hdd_get_fw_state() - get firmware state
  * @adapter:     pointer to the adapter
@@ -4005,12 +3989,6 @@ bool wlan_hdd_get_fw_state(hdd_adapter_t *adapter)
 		return false;
 	}
 
-	if( is_in_time( WLAN_WAIT_TIME_FW_STATUS ) )
-	{
-		hddLog(LOG1, FL("return true immediately"));
-		return true;
-	}
-
 	init_completion(&context.completion);
 	context.pAdapter = adapter;
 	context.magic = FW_STATUS_MAGIC;
@@ -4024,11 +4002,10 @@ bool wlan_hdd_get_fw_state(hdd_adapter_t *adapter)
 	} else {
 		/* request is sent -- wait for the response */
 		rc = wait_for_completion_timeout(&context.completion,
-			msecs_to_jiffies(WLAN_WAIT_TIME_FW_STATUS));
-		if (!rc && !is_in_time( WLAN_WAIT_TIME_FW_STATUS ) ) {
+			msecs_to_jiffies(WLAN_WAIT_TIME_LINK_STATUS));
+		if (!rc) {
 			hddLog(LOGE,
-				FL("SME timed out while retrieving firmware status, timeout=%ums")
-				, WLAN_WAIT_TIME_FW_STATUS );
+				FL("SME timed out while retrieving firmware status"));
 			fw_active = false;
 		}
 	}
@@ -12661,10 +12638,6 @@ static int hdd_driver_init( void)
 
    ENTER();
 
-#ifdef CONFIG_WCNSS_SKB_PRE_ALLOC
-   wcnss_pre_alloc_init();
-#endif
-
    vos_wake_lock_init(&wlan_wake_lock, "wlan");
    hdd_prevent_suspend();
 #ifdef HDD_TRACE_RECORD
@@ -12880,10 +12853,6 @@ static void hdd_driver_exit(void)
    vos_mem_free(adf_ctx);
 
    vos_preClose( &pVosContext );
-
-#ifdef CONFIG_WCNSS_SKB_PRE_ALLOC
-   wcnss_pre_alloc_exit();
-#endif
 
 #ifdef TIMER_MANAGER
    vos_timer_exit();

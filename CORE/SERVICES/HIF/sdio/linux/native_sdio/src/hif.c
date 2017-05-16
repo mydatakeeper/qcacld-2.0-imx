@@ -280,7 +280,6 @@ A_STATUS HIFInit(OSDRV_CALLBACKS *callbacks)
     return A_OK;
 }
 
-unsigned long g_ticks_last_hif_resp = 0;
 static A_STATUS
 __HIFReadWrite(HIF_DEVICE *device,
              A_UINT32 address,
@@ -460,10 +459,6 @@ __HIFReadWrite(HIF_DEVICE *device,
                             request & HIF_READ ? "Read " : "Write",
                             request & HIF_ASYNCHRONOUS ? "Async" : "Sync "));
             status = A_ERROR;
-        }
-        else
-        {
-            g_ticks_last_hif_resp = adf_os_ticks();
         }
     } while (FALSE);
 

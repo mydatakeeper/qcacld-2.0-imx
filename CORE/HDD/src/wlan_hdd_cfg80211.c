@@ -5064,8 +5064,6 @@ static void wlan_hdd_add_extra_ie(hdd_adapter_t* pHostapdAdapter,
     }
     return;
 }
-#define WLAN_EID_INTERWORKING 107
-#define WLAN_EID_EXT_CAPAB 127
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0)) && !defined(WITH_BACKPORTS)
 static int wlan_hdd_cfg80211_update_apies(hdd_adapter_t* pHostapdAdapter,
@@ -5089,11 +5087,6 @@ static int wlan_hdd_cfg80211_update_apies(hdd_adapter_t* pHostapdAdapter,
 
         return -ENOMEM;
     }
-    wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
-                          WLAN_EID_EXT_CAPAB);
-    
-    wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
-                          WLAN_EID_INTERWORKING);
 
     if (0 != wlan_hdd_add_ie(pHostapdAdapter, genie,
                               &total_ielen, WPS_OUI_TYPE, WPS_OUI_TYPE_SIZE))
