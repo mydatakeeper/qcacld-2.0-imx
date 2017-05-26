@@ -2428,6 +2428,8 @@ VOS_STATUS wlansap_set_tx_leakage_threshold(tHalHandle hal,
 VOS_STATUS wlansap_get_chan_width(void *pvosctx,
 			uint32_t *pchanwidth);
 
+eHalStatus sapRoamSessionCloseCallback(void *pContext);
+
 #ifdef __cplusplus
  }
 #endif
