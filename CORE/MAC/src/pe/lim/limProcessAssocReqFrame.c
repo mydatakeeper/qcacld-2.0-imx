@@ -262,6 +262,19 @@ limProcessAssocReqFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo,
           psessionEntry->peSessionId, psessionEntry->limSystemRole,
           psessionEntry->limMlmState, MAC_ADDR_ARRAY(pHdr->sa));
 
+
+    if(pMac->reject_ongoing_connect_removego == 1)
+    {
+		limLog(pMac, LOGE, FL("received unexpected ASSOC REQ on sessionid: %d "
+				"sys subType=%d for role=%d from: "MAC_ADDRESS_STR),
+				psessionEntry->peSessionId,
+				subType, psessionEntry->limSystemRole, MAC_ADDR_ARRAY(pHdr->sa));
+		limLog(pMac, LOGE, FL("Reject the ongoing connection when removing GO"));
+		sirDumpBuf(pMac, SIR_LIM_MODULE_ID, LOG3,
+		WDA_GET_RX_MPDU_DATA(pRxPacketInfo), framelen);
+		return;
+   	}
+
    if (psessionEntry->limSystemRole == eLIM_STA_ROLE || psessionEntry->limSystemRole == eLIM_BT_AMP_STA_ROLE )
    {
         limLog(pMac, LOGE, FL("received unexpected ASSOC REQ on sessionid: %d "

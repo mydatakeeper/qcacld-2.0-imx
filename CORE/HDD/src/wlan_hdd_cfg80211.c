@@ -6488,6 +6488,14 @@ static int wlan_hdd_cfg80211_stop_ap (struct wiphy *wiphy,
 
     ENTER();
 
+    tHalHandle hHal = WLAN_HDD_GET_HAL_CTX(pAdapter);
+    tpAniSirGlobal pMac = PMAC_STRUCT( hHal );
+	if(pAdapter->device_mode == WLAN_HDD_P2P_GO)
+	{
+		hddLog(VOS_TRACE_LEVEL_INFO, FL("Start to stop p2p Go then set reject_ongoing_connect_removego to 1"));
+		pMac->reject_ongoing_connect_removego = 1;
+	}
+
     MTRACE(vos_trace(VOS_MODULE_ID_HDD,
                      TRACE_CODE_HDD_CFG80211_STOP_AP,
                      pAdapter->sessionId, pAdapter->device_mode));
@@ -6495,17 +6503,21 @@ static int wlan_hdd_cfg80211_stop_ap (struct wiphy *wiphy,
     pHddCtx = WLAN_HDD_GET_CTX(pAdapter);
     ret = wlan_hdd_validate_context(pHddCtx);
     if (0 != ret) {
-        hddLog(VOS_TRACE_LEVEL_ERROR, FL("HDD context is not valid"));
+        hddLog(VOS_TRACE_LEVEL_ERROR, FL("HDD context is not valid set then reject_ongoing_connect_removego to 0"));		
+		pMac->reject_ongoing_connect_removego = 0;
         return ret;
     }
 
     if (VOS_FTM_MODE == hdd_get_conparam()) {
-        hddLog(LOGE, FL("Command not allowed in FTM mode"));
+        hddLog(LOGE, FL("Command not allowed in FTM mode then reject_ongoing_connect_removego to 0"));
+		pMac->reject_ongoing_connect_removego = 0;
         return -EINVAL;
     }
 
     if (!(pAdapter->device_mode == WLAN_HDD_SOFTAP ||
           pAdapter->device_mode == WLAN_HDD_P2P_GO)) {
+          hddLog(VOS_TRACE_LEVEL_ERROR, FL("Wrong mode then reject_ongoing_connect_removego to 0"));
+          pMac->reject_ongoing_connect_removego = 0;
         return -EOPNOTSUPP;
     }
 
@@ -6555,8 +6567,9 @@ static int wlan_hdd_cfg80211_stop_ap (struct wiphy *wiphy,
     old = pAdapter->sessionCtx.ap.beacon;
     if (!old) {
         hddLog(VOS_TRACE_LEVEL_ERROR,
-               FL("Session(%d) beacon data points to NULL"),
+               FL("Session(%d) beacon data points to NULL then reject_ongoing_connect_removego to 0"),
                pAdapter->sessionId);
+		pMac->reject_ongoing_connect_removego = 0;
         return -EINVAL;
     }
 
@@ -6592,7 +6605,8 @@ static int wlan_hdd_cfg80211_stop_ap (struct wiphy *wiphy,
     mutex_unlock(&pHddCtx->sap_lock);
 
     if (status != VOS_STATUS_SUCCESS) {
-        hddLog(VOS_TRACE_LEVEL_FATAL, FL("Stopping the BSS"));
+        hddLog(VOS_TRACE_LEVEL_FATAL, FL("Stopping the BSS then reject_ongoing_connect_removego to 0"));
+		pMac->reject_ongoing_connect_removego = 0;
         return -EINVAL;
     }
 
@@ -6625,6 +6639,8 @@ static int wlan_hdd_cfg80211_stop_ap (struct wiphy *wiphy,
     }
 #endif
     EXIT();
+	hddLog(VOS_TRACE_LEVEL_INFO, FL("Set reject_ongoing_connect_removego to 0"));
+	pMac->reject_ongoing_connect_removego = 0;
     return ret;
 }
 
@@ -6638,7 +6654,16 @@ static int wlan_hdd_cfg80211_start_ap(struct wiphy *wiphy,
     hdd_context_t *pHddCtx;
     int            status;
 
-    ENTER();
+    
+    tHalHandle hHal = WLAN_HDD_GET_HAL_CTX(pAdapter);
+    tpAniSirGlobal pMac = PMAC_STRUCT( hHal );
+	if(pAdapter->device_mode == WLAN_HDD_P2P_GO)
+	{
+		hddLog(VOS_TRACE_LEVEL_INFO, FL("Set reject_ongoing_connect_removego to 0"));
+		pMac->reject_ongoing_connect_removego = 0;
+	}
+	
+	ENTER();
 
     MTRACE(vos_trace(VOS_MODULE_ID_HDD,
                      TRACE_CODE_HDD_CFG80211_START_AP, pAdapter->sessionId,
@@ -6939,6 +6964,8 @@ static int __wlan_hdd_cfg80211_change_iface(struct wiphy *wiphy,
 
     pHddCtx = WLAN_HDD_GET_CTX(pAdapter);
     status = wlan_hdd_validate_context(pHddCtx);
+	tHalHandle hHal = WLAN_HDD_GET_HAL_CTX(pAdapter);
+    tpAniSirGlobal pMac = PMAC_STRUCT( hHal );
     if (0 != status) {
         hddLog(LOGE, FL("HDD context is not valid"));
         return status;
@@ -7247,6 +7274,8 @@ done:
 #ifdef WLAN_FEATURE_LPSS
     wlan_hdd_send_all_scan_intf_info(pHddCtx);
 #endif
+    hddLog(VOS_TRACE_LEVEL_INFO, FL("Set reject_ongoing_connect_removego to 0"));
+	pMac->reject_ongoing_connect_removego = 0;
 
     EXIT();
     return 0;
@@ -12453,6 +12482,8 @@ static int __wlan_hdd_cfg80211_del_station(struct wiphy *wiphy,
     VOS_STATUS vos_status;
     int status;
     v_U8_t staId;
+    tHalHandle hHal = WLAN_HDD_GET_HAL_CTX(pAdapter);
+    tpAniSirGlobal pMac = PMAC_STRUCT( hHal );
 
     ENTER();
 
@@ -12478,6 +12509,12 @@ static int __wlan_hdd_cfg80211_del_station(struct wiphy *wiphy,
         if (vos_is_macaddr_broadcast((v_MACADDR_t *)pDelStaParams->peerMacAddr))
         {
             v_U16_t i;
+
+			if (WLAN_HDD_P2P_GO == pAdapter->device_mode) {
+				hddLog(VOS_TRACE_LEVEL_INFO, FL("Set reject_ongoing_connect_removego to 1"));
+				pMac->reject_ongoing_connect_removego = 1;
+			}
+			
             for (i = 0; i < WLAN_MAX_STA_COUNT; i++) {
                 if ((pAdapter->aStaInfo[i].isUsed) &&
                     (!pAdapter->aStaInfo[i].isDeauthInProgress)) {

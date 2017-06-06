@@ -128,7 +128,8 @@ BUILD_DEBUG_VERSION := 1
 BUILD_DIAG_VERSION := 1
 
 #Do we panic on bug?  default is to warn
-PANIC_ON_BUG := 1
+PANIC_ON_BUG := 0
+
 
 #Re-enable wifi on WDI timeout
 RE_ENABLE_WIFI_ON_WDI_TIMEOUT := 0
@@ -1312,11 +1313,12 @@ CDEFINES += -DLINUX_QCMBR
 endif
 
 # Enable target dump for non-qualcomm platform
-ifeq ($(CONFIG_NON_QC_PLATFORM), y)
+#ifeq ($(CONFIG_NON_QC_PLATFORM), y)
 ifeq ($(CONFIG_CLD_HL_SDIO_CORE), y)
 CDEFINES += -DTARGET_DUMP_FOR_NON_QC_PLATFORM
+CDEFINES += -DWLAN_SSR_ENABLED
 endif
-endif
+#endif
 
 ifdef CPTCFG_QCA_CLD_WLAN
 CDEFINES += -DWITH_BACKPORTS

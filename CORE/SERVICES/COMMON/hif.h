@@ -530,6 +530,11 @@ void HIFDumpTargetMemory(HIF_DEVICE *hif_device, void *ramdump_base,
      */
 int HIFDiagWriteAccess(HIF_DEVICE *hifDevice, A_UINT32 address, A_UINT32 data);
 int HIFDiagWriteMem(HIF_DEVICE *hif_device, A_UINT32 address, A_UINT8 *data, int nbytes);
+
+
+void ar6k_ReadHostIntStatusRegs(HIF_DEVICE *hif_device);
+
+
 #if defined(HIF_PCI) && ! defined(A_SIMOS_DEVHOST)
 /*
  * This API allows the Host to access Target registers of a given

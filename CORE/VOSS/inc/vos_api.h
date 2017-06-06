@@ -339,4 +339,9 @@ void vos_trigger_recovery(void);
 #ifdef FEATURE_WLAN_D0WOW
 v_VOID_t vos_pm_control(v_BOOL_t vote);
 #endif
+#ifdef WLAN_SSR_ENABLED
+void vos_send_hang_event(void);
+extern int g_force_hang;
+extern int g_avoid_command;
+#endif
 #endif // if !defined __VOS_API_H

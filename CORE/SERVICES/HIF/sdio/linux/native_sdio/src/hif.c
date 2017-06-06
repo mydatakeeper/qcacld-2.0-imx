@@ -279,6 +279,10 @@ A_STATUS HIFInit(OSDRV_CALLBACKS *callbacks)
 
     return A_OK;
 }
+#if WLAN_SSR_ENABLED
+int g_force_hang = 0;
+int g_avoid_command = 0;
+#endif
 
 static A_STATUS
 __HIFReadWrite(HIF_DEVICE *device,
@@ -293,6 +297,13 @@ __HIFReadWrite(HIF_DEVICE *device,
     int     ret;
     A_UINT8 *tbuffer;
     A_BOOL   bounced = FALSE;
+#if WLAN_SSR_ENABLED
+    if (g_force_hang && g_avoid_command)
+    {
+		pr_err("%s, Target is asserted but need to recover.\n", __func__); 
+        return A_OK;
+    }
+#endif
 
     if (device == NULL || device->func == NULL)
         return A_ERROR;
@@ -459,6 +470,24 @@ __HIFReadWrite(HIF_DEVICE *device,
                             request & HIF_READ ? "Read " : "Write",
                             request & HIF_ASYNCHRONOUS ? "Async" : "Sync "));
             status = A_ERROR;
+#ifdef WLAN_SSR_ENABLED
+            if (ret == -ENOTRECOVERABLE || ret == -EIO || ret == -ENOMEDIUM) {
+                if (vos_get_conparam() != VOS_FTM_MODE)
+                    vos_send_hang_event();
+                pr_err("%s, SDIO bus operation failed\n", __func__); 
+                g_force_hang = 1;
+                g_avoid_command = 1;
+            }
+ #endif           
+        }else{
+#ifdef WLAN_SSR_ENABLED        
+			if (g_force_hang) {
+                pr_err("%s, g_force_hang\n", __func__); 
+				vos_send_hang_event();
+				g_avoid_command = 1;
+			    status = A_ERROR;
+			}
+#endif             
         }
     } while (FALSE);
 

@@ -12849,6 +12849,13 @@ void activeListCmdTimeoutHandle(void *userData)
         sme_SaveActiveCmdStats((tHalHandle)userData);
         vos_trigger_recovery();
     } else {
+#ifdef WLAN_SSR_ENABLED
+		pr_err("%s, Target is asserted but need to recover.\n", __func__); 
+        g_force_hang = 1;
+        vos_send_hang_event();
+        g_avoid_command = 1;
+        return;
+#endif
         VOS_BUG(0);
     }
 }

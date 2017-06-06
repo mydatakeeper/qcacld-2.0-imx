@@ -328,6 +328,19 @@ VOS_STATUS hdd_parse_get_cckm_ie(tANI_U8 *pValue,
                                  tANI_U8 *pCckmIeLen);
 #endif /* FEATURE_WLAN_ESE && FEATURE_WLAN_ESE_UPLOAD */
 
+
+
+#ifdef WLAN_SSR_ENABLED
+bool close_for_hang = 0;
+void vos_send_hang_event()
+{
+    close_for_hang = 1;
+    pr_err("vos_send_hang_event\n");
+    wlan_hdd_send_svc_nlink_msg(WLAN_SVC_FW_CRASHED_IND, NULL, 0);    
+}
+#endif
+
+
 #ifdef FEATURE_GREEN_AP
 
 static void hdd_wlan_green_ap_timer_fn(void *phddctx)
@@ -9653,9 +9666,16 @@ VOS_STATUS hdd_stop_adapter( hdd_context_t *pHddCtx, hdd_adapter_t *pAdapter,
                      hdd_smeCloseSessionCallback, pAdapter))
             {
                //Block on a completion variable. Can't wait forever though.
-               rc = wait_for_completion_timeout(
+#ifdef WLAN_SSR_ENABLED
+                rc = wait_for_completion_timeout(
+                      &pAdapter->session_close_comp_var,
+                      (close_for_hang ? msecs_to_jiffies(1000) : msecs_to_jiffies(WLAN_WAIT_TIME_SESSIONOPENCLOSE)));
+#else
+                rc = wait_for_completion_timeout(
                      &pAdapter->session_close_comp_var,
                      msecs_to_jiffies(WLAN_WAIT_TIME_SESSIONOPENCLOSE));
+
+#endif
                if (!rc) {
                   hddLog(LOGE, "%s: failure waiting for session_close_comp_var",
                         __func__);

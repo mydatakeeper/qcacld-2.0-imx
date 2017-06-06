@@ -732,6 +732,13 @@ int wmi_unified_cmd_send(wmi_unified_t wmi_handle, wmi_buf_t buf, int len,
 		//dump_CE_debug_register(scn->hif_sc);
 		adf_os_atomic_dec(&wmi_handle->pending_cmds);
 		pr_err("%s: MAX 1024 WMI Pending cmds reached.\n", __func__);
+#ifdef WLAN_SSR_ENABLED
+        vos_send_hang_event();
+        g_force_hang = 1;
+        g_avoid_command = 1;
+        return -EBUSY;
+#endif
+        
 		VOS_BUG(0);
 		return -EBUSY;
 	}

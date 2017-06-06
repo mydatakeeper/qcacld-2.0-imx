@@ -881,6 +881,74 @@ u_int32_t ol_fw_iram_size;
 u_int32_t ol_fw_axi_size;
 #endif
 
+#ifdef TARGET_DUMP_FOR_NON_QC_PLATFORM
+int write_to_file(int file_no, uint8 *buf, int size)
+{
+	int ret = 0;
+	struct file *fp;
+	mm_segment_t old_fs;
+	loff_t pos = 0;
+
+	pr_err("%s: ENTER\n", __func__);
+
+	/* change to KERNEL_DS address limit */
+	old_fs = get_fs();
+	set_fs(KERNEL_DS);
+    if(file_no == 0)
+    {
+        /* open file to write */
+        fp = filp_open("/home/root/ramdump_ar6320.bin", O_WRONLY|O_CREAT|O_DSYNC, 0640);
+        if (!fp) {
+        	pr_err("%s: open file error\n", __FUNCTION__);
+        	ret = -1;
+        	goto exit;
+        }
+    }
+    else if (file_no == 1)
+    {
+        /* open file to write */
+        fp = filp_open("/home/root/axi_ar6320.bin", O_WRONLY|O_CREAT|O_DSYNC, 0640);
+        if (!fp) {
+        	pr_err("%s: open file error\n", __FUNCTION__);
+        	ret = -1;
+        	goto exit;
+        }
+    }
+    else if (file_no == 2)
+    {
+        /* open file to write */
+        fp = filp_open("/home/root/register_ar6320.bin", O_WRONLY|O_CREAT|O_DSYNC, 0640);
+        if (!fp) {
+        	pr_err("%s: open file error\n", __FUNCTION__);
+        	ret = -1;
+        	goto exit;
+        }
+    }        
+    else if (file_no == 3)
+    {
+        /* open file to write */
+        fp = filp_open("/home/root/iram_ar6320.bin", O_WRONLY|O_CREAT|O_DSYNC, 0640);
+        if (!fp) {
+        	pr_err("%s: open file error\n", __FUNCTION__);
+        	ret = -1;
+        	goto exit;
+        }
+    }       
+	/* Write buf to file */
+	fp->f_op->write(fp, buf, size, &pos);
+
+exit:
+	/* close file before return */
+	if (fp)
+		filp_close(fp, current->files);
+	/* restore previous address limit */
+	set_fs(old_fs);
+
+	pr_err("%s: EXIT\n", __func__);
+
+	return ret;
+}
+#endif
 int ol_copy_ramdump(struct ol_softc *scn)
 {
 	int ret;
@@ -956,6 +1024,7 @@ static void ramdump_work_handler(struct work_struct *ramdump)
 		vos_set_logp_in_progress(VOS_MODULE_ID_VOSS, FALSE);
 		goto out_fail;
 	}
+    ar6k_ReadHostIntStatusRegs(ramdump_scn->hif_hdl);
 
 	ramdump_scn->ramdump_size = DRAM_SIZE + IRAM_SIZE + AXI_SIZE;
 	ramdump_scn->ramdump_base =
@@ -989,11 +1058,14 @@ static void ramdump_work_handler(struct work_struct *ramdump)
 	printk("%s: RAM dump collecting completed!\n", __func__);
 
 #if defined(HIF_SDIO)
-	panic("CNSS Ram dump collected\n");
+	//panic("CNSS Ram dump collected\n");
+	pr_err("CNSS Ram dump collected\n");
 #else
 	/* Notify SSR framework the target has crashed. */
 	cnss_device_crashed();
 #endif
+	vos_set_logp_in_progress(VOS_MODULE_ID_VOSS, FALSE);
+
 	return;
 
 out_fail:
@@ -1174,6 +1246,17 @@ void ol_target_failure(void *instance, A_STATUS status)
 #else
 	int ret;
 #endif
+#ifdef WLAN_SSR_ENABLED
+	if (wma->wmi_ready && !scn->enableRamdumpCollection) { 
+		pr_err("%s, Target is asserted but need to recover.\n", __func__); 
+		vos_send_hang_event();
+		g_force_hang = 1;
+		g_avoid_command = 1;
+		return;
+	} else { 
+		printk("%s, Target is asserted but need to collect ramdump.\n", __func__); 
+	} 
+#endif
 
 #ifdef HIF_USB
 	/* Currently, only firmware crash triggers ol_target_failure.
@@ -1301,7 +1384,11 @@ disable_fwlog:
 	if (scn->enableRamdumpCollection)
 		ol_schedule_ramdump_work(scn);
 	else
-		printk("%s: athdiag read for target reg\n", __func__);
+    {   
+        printk("%s: athdiag read for target reg\n", __func__);
+        vos_set_logp_in_progress(VOS_MODULE_ID_VOSS, FALSE);
+    }
+    
 #endif
 
 	return;
@@ -2331,6 +2418,9 @@ int ol_target_coredump(void *inst, void *memoryBlock, u_int32_t blockLength)
 				result = ol_diag_read(scn, bufferLoc,
 						      pos, readLen);
 			if (result != -EIO) {
+#ifdef TARGET_DUMP_FOR_NON_QC_PLATFORM
+        write_to_file(sectionCount, bufferLoc, readLen);
+#endif                
 				amountRead += result;
 				bufferLoc += result;
 				sectionCount++;

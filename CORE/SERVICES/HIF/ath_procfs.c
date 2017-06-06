@@ -40,6 +40,10 @@
 #endif
 #include "vos_api.h"
 #include <adf_os_atomic.h>
+#ifdef HOST_INT_STATUS_GET
+#include "regtable.h"
+#include "hif_sdio_internal.h"
+#endif
 
 #define PROCFS_NAME		"athdiagpfs"
 #define PROCFS_DIR		"cld"
@@ -78,14 +82,43 @@ static void *get_hif_hdl_from_file(struct file *file)
 #endif
 	return (void*)scn->ol_sc->hif_hdl;
 }
+#ifdef HOST_INT_STATUS_GET
+static void HIFDevDumpIrqRegisters(void *pDev,
+        MBOX_IRQ_PROC_REGISTERS *pIrqProcRegs
+)
+{
+    pr_err("RegTable->\n");
 
+    if (pIrqProcRegs != NULL) {
+        pr_err("HostIntStatus: 0x%x\n",pIrqProcRegs->host_int_status);
+        pr_err("CPUIntStatus: 0x%x\n",pIrqProcRegs->cpu_int_status);
+        pr_err("ErrorIntStatus: 0x%x\n",pIrqProcRegs->error_int_status);
+        pr_err("CounterIntStatus: 0x%x\n",pIrqProcRegs->counter_int_status);
+        pr_err("MboxFrame: 0x%x\n",pIrqProcRegs->mbox_frame);
+        pr_err("RxLKAValid: 0x%x\n",pIrqProcRegs->rx_lookahead_valid);
+        pr_err("host_int_status2: 0x%x\n",pIrqProcRegs->host_int_status2);
+        pr_err("gmbox_rx_avail: 0x%x\n",pIrqProcRegs->gmbox_rx_avail);
+        pr_err("RxLKA0: 0x%x\n",pIrqProcRegs->rx_lookahead[0]);
+        pr_err("RxLKA1: 0x%x\n",pIrqProcRegs->rx_lookahead[1]);
+        pr_err("RxLKA2: 0x%x\n",pIrqProcRegs->rx_lookahead[2]);
+        pr_err("RxLKA3: 0x%x\n",pIrqProcRegs->rx_lookahead[3]);
+        pr_err("int_status_enable: 0x%x\n",pIrqProcRegs->int_status_enable);
+        pr_err("\nRegTable->\n");
+        }
+
+   pr_err("<------------------------------->\n");
+}
+#endif
 static ssize_t ath_procfs_diag_read(struct file *file, char __user *buf,
 					size_t count, loff_t *pos)
 {
 	hif_handle_t            hif_hdl;
 	int rv;
 	A_UINT8 *read_buffer = NULL;
-
+#ifdef HOST_INT_STATUS_GET
+    MBOX_IRQ_PROC_REGISTERS IrqProcRegisters;
+    A_STATUS status = A_OK;
+#endif
 	read_buffer = (A_UINT8 *)vos_mem_malloc(count);
 	if (NULL == read_buffer) {
 		pr_debug("%s: vos_mem_alloc failed\n", __func__);
@@ -96,6 +129,22 @@ static ssize_t ath_procfs_diag_read(struct file *file, char __user *buf,
 	pr_debug("rd buff 0x%p cnt %zu offset 0x%x buf 0x%p\n",
 			read_buffer,count,
 			(int)*pos, buf);
+#ifdef HOST_INT_STATUS_GET
+    vos_mem_set(&IrqProcRegisters, sizeof(IrqProcRegisters), 0);
+    status = HIFSyncRead(hif_hdl,
+                HOST_INT_STATUS_ADDRESS,
+                (A_UINT8 *) &IrqProcRegisters,
+                sizeof(IrqProcRegisters),
+                HIF_RD_SYNC_BYTE_INC,
+                NULL);
+    
+    if (A_FAILED(status)) {
+        pr_err("read host int status address failed\n");
+    }
+    else 
+        HIFDevDumpIrqRegisters(NULL,
+                &IrqProcRegisters);
+#endif
 
 	if ((count == 4) && ((((A_UINT32)(*pos)) & 3) == 0)) {
 		/* reading a word? */

@@ -162,11 +162,11 @@ limProcessAuthFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo, tpPESession pse
     frameLen = WDA_GET_RX_PAYLOAD_LEN(pRxPacketInfo);
 
 
-    if (!frameLen)
+    if (!frameLen || pMac->reject_ongoing_connect_removego == 1)
     {
         // Log error
         limLog(pMac, LOGE,
-               FL("received Authentication frame with no body from "));
+               FL("received Authentication frame with no body from or reject ongoing connnection when removing Go"));
         limPrintMacAddr(pMac, pHdr->sa, LOGE);
 
         return;

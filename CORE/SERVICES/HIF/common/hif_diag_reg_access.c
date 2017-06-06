@@ -39,6 +39,7 @@
 #include "hif.h"
 #include "if_ath_sdio.h"
 #include "regtable.h"
+#include "hif_sdio_internal.h"
 
 #define CPU_DBG_SEL_ADDRESS                      0x00000483
 #define CPU_DBG_ADDRESS                          0x00000484
@@ -295,4 +296,52 @@ ar6k_FetchTargetRegs(HIF_DEVICE *hifDevice, A_UINT32 *targregs)
     }
 }
 
+static void AutoHIFDevDumpIrqRegisters(void *pDev,
+        MBOX_IRQ_PROC_REGISTERS *pIrqProcRegs
+)
+{
+    pr_err("RegTable->\n");
+
+    if (pIrqProcRegs != NULL) {
+        pr_err("HostIntStatus: 0x%x\n",pIrqProcRegs->host_int_status);
+        pr_err("CPUIntStatus: 0x%x\n",pIrqProcRegs->cpu_int_status);
+        pr_err("ErrorIntStatus: 0x%x\n",pIrqProcRegs->error_int_status);
+        pr_err("CounterIntStatus: 0x%x\n",pIrqProcRegs->counter_int_status);
+        pr_err("MboxFrame: 0x%x\n",pIrqProcRegs->mbox_frame);
+        pr_err("RxLKAValid: 0x%x\n",pIrqProcRegs->rx_lookahead_valid);
+        pr_err("host_int_status2: 0x%x\n",pIrqProcRegs->host_int_status2);
+        pr_err("gmbox_rx_avail: 0x%x\n",pIrqProcRegs->gmbox_rx_avail);
+        pr_err("RxLKA0: 0x%x\n",pIrqProcRegs->rx_lookahead[0]);
+        pr_err("RxLKA1: 0x%x\n",pIrqProcRegs->rx_lookahead[1]);
+        pr_err("RxLKA2: 0x%x\n",pIrqProcRegs->rx_lookahead[2]);
+        pr_err("RxLKA3: 0x%x\n",pIrqProcRegs->rx_lookahead[3]);
+        pr_err("int_status_enable: 0x%x\n",pIrqProcRegs->int_status_enable);
+        pr_err("\nRegTable->\n");
+        }
+
+   pr_err("<------------------------------->\n");
+}
+
+void 
+ar6k_ReadHostIntStatusRegs(HIF_DEVICE *hif_device)
+{
+
+    MBOX_IRQ_PROC_REGISTERS IrqProcRegisters;
+    A_STATUS status = A_OK;
+
+    memset(&IrqProcRegisters, sizeof(IrqProcRegisters), 0);
+    status = HIFReadWrite(hif_device,
+                HOST_INT_STATUS_ADDRESS,
+                (A_UINT8 *) &IrqProcRegisters,
+                sizeof(IrqProcRegisters),
+                HIF_RD_SYNC_BYTE_INC,
+                NULL);
+    
+    if (A_FAILED(status)) {
+        pr_err("read host int status address failed\n");
+    }
+    else 
+        AutoHIFDevDumpIrqRegisters(NULL,
+                &IrqProcRegisters);
+}
 

@@ -1428,7 +1428,7 @@ typedef enum
 #define CFG_ENABLE_RAMDUMP_COLLECTION              "gEnableDumpCollect"
 #define CFG_ENABLE_RAMDUMP_COLLECTION_MIN          ( 0 )
 #define CFG_ENABLE_RAMDUMP_COLLECTION_MAX          ( 1 )
-#define CFG_ENABLE_RAMDUMP_COLLECTION_DEFAULT      ( 1 )
+#define CFG_ENABLE_RAMDUMP_COLLECTION_DEFAULT      ( 0 )
 
 typedef enum
 {
