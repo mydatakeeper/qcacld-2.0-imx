@@ -534,7 +534,28 @@ limRestoreFromAuthState(tpAniSirGlobal pMac, tSirResultCodes resultCode, tANI_U1
                       (tANI_U32 *) &mlmAuthCnf);
 } /*** end limRestoreFromAuthState() ***/
 
-
+#ifdef WLAN_FEATURE_FILS_SK
+/*
+ * lim_get_fils_auth_data_len: This API will return
+ * extra auth data len in case of fils session
+ *
+ * Return: fils data len in auth packet
+ */
+static int lim_get_fils_auth_data_len(void)
+{
+    int len = sizeof(tSirMacRsnInfo) +
+            sizeof(uint8_t) + /* assoc_delay_info */
+            SIR_FILS_SESSION_LENGTH +
+            sizeof(uint8_t) + /* wrapped_data_len */
+            SIR_FILS_WRAPPED_DATA_MAX_SIZE + SIR_FILS_NONCE_LENGTH;
+    return len;
+}
+#else
+static int lim_get_fils_auth_data_len(void)
+{
+    return 0;
+}
+#endif
 
 /**
  * limLookUpKeyMappings()
@@ -596,6 +617,9 @@ limEncryptAuthFrame(tpAniSirGlobal pMac, tANI_U8 keyId, tANI_U8 *pKey, tANI_U8 *
 {
     tANI_U8  seed[LIM_SEED_LENGTH], icv[SIR_MAC_WEP_ICV_LENGTH];
 
+#ifdef WLAN_FEATURE_FILS_SK
+    int framelen = sizeof(tSirMacAuthFrameBody) - lim_get_fils_auth_data_len();
+#endif
     keyLength += 3;
 
     // Bytes 0-2 of seed is IV
@@ -605,12 +629,19 @@ limEncryptAuthFrame(tpAniSirGlobal pMac, tANI_U8 keyId, tANI_U8 *pKey, tANI_U8 *
     // Bytes 3-7 of seed is key
     vos_mem_copy((tANI_U8 *) &seed[3], pKey, keyLength - 3);
 
+#ifdef WLAN_FEATURE_FILS_SK
     // Compute CRC-32 and place them in last 4 bytes of plain text
+    limComputeCrc32(icv, pPlainText, framelen);
+
+    vos_mem_copy((pPlainText + framelen),
+                  icv, SIR_MAC_WEP_ICV_LENGTH);
+#else
+
     limComputeCrc32(icv, pPlainText, sizeof(tSirMacAuthFrameBody));
 
-    vos_mem_copy( pPlainText + sizeof(tSirMacAuthFrameBody),
+    vos_mem_copy((pPlainText + sizeof(tSirMacAuthFrameBody)),
                   icv, SIR_MAC_WEP_ICV_LENGTH);
-
+#endif
     // Run RC4 on plain text with the seed
     limRC4(pEncrBody + SIR_MAC_WEP_IV_LENGTH,
            (tANI_U8 *) pPlainText, seed, keyLength,
@@ -647,7 +678,7 @@ limEncryptAuthFrame(tpAniSirGlobal pMac, tANI_U8 keyId, tANI_U8 *pKey, tANI_U8 *
  */
 
 void
-limComputeCrc32(tANI_U8 *pDest, tANI_U8 * pSrc, tANI_U8 len)
+limComputeCrc32(tANI_U8 *pDest, tANI_U8 * pSrc, tANI_U32 len)
 {
     tANI_U32 crc;
     int i;

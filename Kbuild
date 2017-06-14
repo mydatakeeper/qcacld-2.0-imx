@@ -98,6 +98,11 @@ ifeq ($(KERNEL_BUILD), 0)
 	#Flag to enable Fast Transition (11r) feature
 	CONFIG_QCOM_VOWIFI_11R := y
 
+        ifeq ($(KERNELRELEASE), 4.9.11+)
+        #Flag to enable FILS Feature (11ai)
+        CONFIG_WLAN_FEATURE_FILS := y
+        endif
+
 	ifneq ($(CONFIG_QCA_CLD_WLAN),)
         ifeq ($(CONFIG_CNSS),y)
 		#Flag to enable Protected Managment Frames (11w) feature
@@ -358,6 +363,10 @@ ADF_OBJS :=     $(ADF_DIR)/adf_nbuf.o \
                 $(ADF_DIR)/linux/adf_os_defer_pvt.o \
                 $(ADF_DIR)/linux/adf_os_lock_pvt.o
 
+ifeq ($(CONFIG_WLAN_FEATURE_FILS), y)
+ADF_OBJS +=     $(ADF_DIR)/linux/qdf_crypto.o
+endif
+
 ifeq ($(CONFIG_DPTRACE_ENABLE), y)
 ADF_OBJS +=     $(ADF_DIR)/adf_trace.o
 endif
@@ -543,6 +552,10 @@ endif
 
 ifeq ($(CONFIG_QCOM_TDLS),y)
 MAC_LIM_OBJS += $(MAC_SRC_DIR)/pe/lim/limProcessTdls.o
+endif
+
+ifeq ($(CONFIG_WLAN_FEATURE_FILS),y)
+MAC_LIM_OBJS += $(MAC_SRC_DIR)/pe/lim/lim_process_fils.o
 endif
 
 ifeq ($(CONFIG_WLAN_FEATURE_NAN_DATAPATH),y)
@@ -1030,6 +1043,13 @@ CDEFINES :=	-DANI_LITTLE_BYTE_ENDIAN \
 
 ifeq ($(CONFIG_WLAN_POWER_DEBUGFS), y)
 CDEFINES += -DWLAN_POWER_DEBUGFS
+endif
+
+ifeq ($(CONFIG_WLAN_FEATURE_FILS),y)
+CDEFINES += -DWLAN_FEATURE_FILS_SK \
+            -DCFG80211_CONNECT_DONE \
+            -DCFG80211_FILS_SK_OFFLOAD_SUPPORT \
+            -DCFG80211_CONNECT_BSS
 endif
 
 ifeq ($(CONFIG_SCPC_FEATURE), y)

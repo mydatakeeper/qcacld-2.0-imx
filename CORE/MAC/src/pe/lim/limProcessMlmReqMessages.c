@@ -58,7 +58,9 @@
 #ifdef FEATURE_WLAN_DIAG_SUPPORT_LIM
 #include "vos_diag_core_log.h"
 #endif
-
+#ifdef WLAN_FEATURE_FILS_SK
+#include "lim_process_fils.h"
+#endif
 
 // MLM REQ processing function templates
 static void limProcessMlmStartReq(tpAniSirGlobal, tANI_U32 *);
@@ -4100,7 +4102,10 @@ static void lim_process_auth_retry_timer(tpAniSirGlobal mac_ctx)
 			auth_frame.authStatusCode = 0;
 			limLog(mac_ctx, LOGW, FL("Retry Auth "));
 			mac_ctx->auth_ack_status = LIM_AUTH_ACK_NOT_RCD;
-			limSendAuthMgmtFrame(mac_ctx,
+#ifdef WALN_FEATURE_FILS_SK
+                lim_increase_fils_sequence_number(session_entry);
+#endif
+		limSendAuthMgmtFrame(mac_ctx,
 					&auth_frame,
 					mac_ctx->lim.gpLimMlmAuthReq->peerMacAddr,
 					LIM_NO_WEP_IN_FC, session_entry, eSIR_TRUE);

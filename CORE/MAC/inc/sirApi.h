@@ -39,6 +39,10 @@
 #ifndef __SIR_API_H
 #define __SIR_API_H
 
+#include "palTypes.h"
+#ifdef WLAN_FEATURE_FILS_SK
+#include "lim_fils_defs.h"
+#endif
 #include "sirTypes.h"
 #include "sirMacProtDef.h"
 #include "aniSystemDefs.h"
@@ -55,6 +59,8 @@
 #define SIR_MAX_SUPPORTED_CHANNEL_LIST      96
 
 #define SIR_MDIE_SIZE               3
+
+#define SIR_MAX_ELEMENT_ID			255
 
 // Increase dwell time for P2P search in ms
 #define P2P_SEARCH_DWELL_TIME_INCREASE   20
@@ -1179,6 +1185,9 @@ typedef struct sSirSmeJoinReq
     tSirMacPowerCapInfo powerCap;
     tSirSupChnl         supportedChannels;
     uint8_t             sub20_channelwidth;
+#ifdef WLAN_FEATURE_FILS_SK
+    struct cds_fils_connection_info fils_con_info;
+#endif
     tSirBssDescription  bssDescription;
 } tSirSmeJoinReq, *tpSirSmeJoinReq;
 
