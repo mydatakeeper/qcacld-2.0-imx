@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2016 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2017 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -54,6 +54,9 @@
 
 #if defined(FEATURE_WLAN_ESE) && !defined(FEATURE_WLAN_ESE_UPLOAD)
 #include "eseApi.h"
+#endif
+#ifdef WLAN_FEATURE_FILS_SK
+#include "lim_process_fils.h"
 #endif
 
 extern tSirRetStatus schBeaconEdcaProcess(tpAniSirGlobal pMac, tSirMacEdcaParamSetIE *edca, tpPESession psessionEntry);
@@ -357,7 +360,9 @@ limProcessAssocRspFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo, tANI_U8 sub
 #ifdef WLAN_FEATURE_ROAM_OFFLOAD
     tANI_U8               smeSessionId = 0;
 #endif
-
+#ifdef WLAN_FEATURE_FILS_SK
+    bool is_fils_parse_success;
+#endif
     //Initialize status code to success.
 #ifdef WLAN_FEATURE_ROAM_OFFLOAD
     if (psessionEntry->bRoamSynchInProgress)
@@ -506,9 +511,14 @@ limProcessAssocRspFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo, tANI_U8 sub
 #endif
     pBody = WDA_GET_RX_MPDU_DATA(pRxPacketInfo);
 
+#ifdef WLAN_FEATURE_FILS_SK
+    if (sirConvertAssocRespFrame2Struct(
+                        pMac, psessionEntry, pBody, frameLen, pAssocRsp) == eSIR_FAILURE)
+#else
     // parse Re/Association Response frame.
     if (sirConvertAssocRespFrame2Struct(
                         pMac, pBody, frameLen, pAssocRsp) == eSIR_FAILURE)
+#endif
     {
         vos_mem_free(pAssocRsp);
         PELOGE(limLog(pMac, LOGE, FL("Parse error Assoc resp subtype %d,"
@@ -716,6 +726,22 @@ limProcessAssocRspFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo, tANI_U8 sub
 
         goto assocReject;
     }
+#ifdef WLAN_FEATURE_FILS_SK
+    is_fils_parse_success = lim_verify_fils_params_assoc_rsp(pMac, psessionEntry,
+                                                        pAssocRsp, &mlmAssocCnf);
+    if (!is_fils_parse_success)
+    {
+        // Log error
+        PELOGW(limLog(pMac, LOGE, "FILS params doesnot match");)
+        mlmAssocCnf.resultCode = eSIR_SME_INVALID_ASSOC_RSP_RXED;
+        mlmAssocCnf.protStatusCode = eSIR_MAC_UNSPEC_FAILURE_STATUS;
+
+        // Send advisory Disassociation frame to AP
+        limSendDisassocMgmtFrame(pMac, eSIR_MAC_UNSPEC_FAILURE_REASON,
+                                 pHdr->sa, psessionEntry, FALSE);
+        goto assocReject;
+    }
+#endif
     // Association Response received with success code
     /*
      * Set the link state to POSTASSOC now that we have received

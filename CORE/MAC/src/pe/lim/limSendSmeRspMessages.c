@@ -57,6 +57,9 @@
 #include "nan_datapath.h"
 
 #include "sirApi.h"
+#ifdef WLAN_FEATURE_FILS_SK
+#include "lim_process_fils.h"
+#endif
 
 /**
  * limRemoveSsidFromScanCache()
@@ -331,6 +334,20 @@ static void limSendSmeJoinReassocRspAfterResume( tpAniSirGlobal pMac,
     limSysProcessMmhMsgApi(pMac, &mmhMsg,  ePROT);
 }
 
+#ifdef WLAN_FEATURE_FILS_SK
+static void lim_update_fils_seq_num(tpSirSmeJoinRsp sme_join_rsp,
+                    tpPESession session_entry)
+{
+    sme_join_rsp->fils_seq_num =
+        session_entry->fils_info->sequence_number;
+    PELOG1(limLog(pMac, LOG1, FL("FILS seq number %d"),
+            sme_join_rsp->fils_seq_num);)
+}
+#else
+static inline void lim_update_fils_seq_num(tpSirSmeJoinRsp sme_join_rsp,
+                       tpPESession session_entry)
+{}
+#endif
 
 /**
  * limSendSmeJoinReassocRsp()
@@ -422,7 +439,14 @@ limSendSmeJoinReassocRsp(tpAniSirGlobal pMac, tANI_U16 msgType,
         }
 
         vos_mem_set((tANI_U8*)pSirSmeJoinRsp, rspLen, 0);
-
+#ifdef WLAN_FEATURE_FILS_SK
+        if (lim_is_fils_connection(psessionEntry))
+        {
+            pSirSmeJoinRsp->is_fils_connection = true;
+            lim_update_fils_seq_num(pSirSmeJoinRsp,
+                                        psessionEntry);
+        }
+#endif
         if (resultCode == eSIR_SME_SUCCESS)
         {
             pStaDs = dphGetHashEntry(pMac, DPH_STA_HASH_INDEX_PEER, &psessionEntry->dph.dphHashTable);
@@ -446,6 +470,12 @@ limSendSmeJoinReassocRsp(tpAniSirGlobal pMac, tANI_U16 msgType,
                 pSirSmeJoinRsp->nss = pStaDs->nss;
                 pSirSmeJoinRsp->max_rate_flags =
                                 lim_get_max_rate_flags(pMac, pStaDs);
+#ifdef WLAN_FEATURE_FILS_SK
+                /* Copy FILS params only for Successful join */
+                populate_fils_connect_params(pMac, psessionEntry,
+                                             pSirSmeJoinRsp);
+#endif
+
             }
         }
 

@@ -419,6 +419,11 @@ typedef struct sSirAssocRsp
 #endif
     tDot11fIEvendor2_ie       vendor2_ie;
     uint8_t                   vendor_sub20_capability;
+#ifdef WLAN_FEATURE_FILS_SK
+    tDot11fIEfils_session fils_session;
+    tDot11fIEfils_key_confirmation fils_key_auth;
+    tDot11fIEfils_kde fils_kde;
+#endif
 } tSirAssocRsp, *tpSirAssocRsp;
 
 #if defined(FEATURE_WLAN_ESE_UPLOAD)
@@ -594,6 +599,9 @@ sirConvertAssocReqFrame2Struct(struct sAniSirGlobal *pMac,
 
 tSirRetStatus
 sirConvertAssocRespFrame2Struct(struct sAniSirGlobal *pMac,
+#ifdef WLAN_FEATURE_FILS_SK
+                                tpPESession psessionEntry,
+#endif
                                 tANI_U8 * frame,
                                 tANI_U32 len,
                                 tpSirAssocRsp assoc);
@@ -1132,3 +1140,23 @@ tSirRetStatus sirvalidateandrectifyies(tpAniSirGlobal pMac,
                                        tANI_U8 *pMgmtFrame,
                                        tANI_U32 nFrameBytes,
                                        tANI_U32 *nMissingRsnBytes);
+#ifdef WLAN_FEATURE_FILS_SK
+/**
+ * populate_dot11f_fils_params() - Populate FILS IE to frame
+ * @mac_ctx: global mac context
+ * @frm: Assoc request frame
+ * @pe_session: PE session
+ *
+ * This API is used to populate FILS IE to Association request
+ *
+ * Return: None
+ */
+void populate_dot11f_fils_params(tpAniSirGlobal mac_ctx,
+                 tDot11fAssocRequest *frm,
+                 tpPESession pe_session);
+#else
+static inline populate_dot11f_fils_params(tpAniSirGlobal mac_ctx,
+                 tDot11fAssocRequest *frm,
+                 tpPESession pe_session);
+{}
+#endif

@@ -2271,7 +2271,12 @@ static eHalStatus hdd_AssociationCompletionHandler( hdd_adapter_t *pAdapter, tCs
             if ( eCSR_ROAM_RESULT_ASSOC_FAIL_CON_CHANNEL == roamResult )
             {
                if (pRoamInfo)
-                   hdd_connect_result(dev, pRoamInfo->bssid, NULL,
+                   hdd_connect_result(dev, pRoamInfo->bssid,
+#ifdef WLAN_FEATURE_FILS_SK
+                        pRoamInfo,
+#else
+                        NULL,
+#endif
                         NULL, 0, NULL, 0,
                         WLAN_STATUS_ASSOC_DENIED_UNSPEC,
                         GFP_KERNEL, connect_timeout, pRoamInfo->statusCode);
@@ -2284,7 +2289,12 @@ static eHalStatus hdd_AssociationCompletionHandler( hdd_adapter_t *pAdapter, tCs
             else
             {
                if (pRoamInfo)
-                   hdd_connect_result(dev, pRoamInfo->bssid, NULL,
+                   hdd_connect_result(dev, pRoamInfo->bssid,
+#ifdef WLAN_FEATURE_FILS_SK
+                        pRoamInfo,
+#else
+                        NULL,
+#endif
                         NULL, 0, NULL, 0,
                         pRoamInfo->reasonCode ?
                         pRoamInfo->reasonCode :
@@ -4545,6 +4555,7 @@ static tANI_S32 hdd_ProcessGENIE(hdd_adapter_t *pAdapter,
     tPmkidCacheInfo PMKIDCache[4]; // Local transfer memory
     v_BOOL_t updatePMKCache = FALSE;
 
+    memset(PMKIDCache, 0 , sizeof PMKIDCache);
     /* Clear struct of tDot11fIERSN and tDot11fIEWPA specifically setting present
        flag to 0 */
     memset( &dot11WPAIE, 0 , sizeof(tDot11fIEWPA) );
