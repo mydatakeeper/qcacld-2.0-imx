@@ -1154,9 +1154,4 @@ tSirRetStatus sirvalidateandrectifyies(tpAniSirGlobal pMac,
 void populate_dot11f_fils_params(tpAniSirGlobal mac_ctx,
                  tDot11fAssocRequest *frm,
                  tpPESession pe_session);
-#else
-static inline populate_dot11f_fils_params(tpAniSirGlobal mac_ctx,
-                 tDot11fAssocRequest *frm,
-                 tpPESession pe_session);
-{}
 #endif

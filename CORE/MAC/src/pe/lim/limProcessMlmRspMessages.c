@@ -2867,10 +2867,6 @@ static void lim_update_fils_auth_mode(tpPESession session_entry,
     if (session_entry->fils_info->is_fils_connection)
         *auth_mode = session_entry->fils_info->auth;
 }
-#else
-static void lim_update_fils_auth_mode(tpPESession session_entry,
-                                      tAniAuthType *auth_mode)
-{}
 #endif
 
 static void

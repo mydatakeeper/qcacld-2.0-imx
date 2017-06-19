@@ -14629,10 +14629,6 @@ static void wlan_hdd_cfg80211_set_wiphy_fils_feature(struct wiphy *wiphy)
 {
 	wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_FILS_SK_OFFLOAD);
 }
-#else
-static void wlan_hdd_cfg80211_set_wiphy_fils_feature(struct wiphy *wiphy)
-{
-}
 #endif
 
 /*
@@ -21939,10 +21935,6 @@ static bool hdd_validate_fils_info_ptr(hdd_wext_state_t *wext_state)
     }
 
     return true;
-}
-#else
-static bool hdd_validate_fils_info_ptr(hdd_wext_state_t *wext_state)
-{
 }
 #endif
 

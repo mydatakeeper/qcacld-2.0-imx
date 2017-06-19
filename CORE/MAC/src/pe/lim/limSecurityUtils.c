@@ -550,11 +550,6 @@ static int lim_get_fils_auth_data_len(void)
             SIR_FILS_WRAPPED_DATA_MAX_SIZE + SIR_FILS_NONCE_LENGTH;
     return len;
 }
-#else
-static int lim_get_fils_auth_data_len(void)
-{
-    return 0;
-}
 #endif
 
 /**
