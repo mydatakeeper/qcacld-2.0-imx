@@ -128,11 +128,11 @@ struct dfs_pulse dfs_mkk4_radars[] = {
 };
 
 struct dfs_bin5pulse dfs_fcc_bin5pulses[] = {
-        {4, 28, 105, 12, 17, 5},
+        {4, 28, 105, 12, 17, 3},
 };
 
 struct dfs_bin5pulse dfs_jpn_bin5pulses[] = {
-        {5, 28, 105, 12, 22, 5},
+        {5, 28, 105, 12, 22, 2},
 };
 struct dfs_pulse dfs_etsi_radars[] = {
 
@@ -157,5 +157,5 @@ struct dfs_pulse dfs_etsi_radars[] = {
     {25, 15, 2300, 4000,  0, 24, 10, 0, 18, 22, 0,   0, 0, 35},   /* Type 3 */
 
     /* 20-30us, 2000-4000 PRF, 20 pulses*/
-    {20, 30, 2000, 4000, 0, 24, 6, 19, 33, 24, 0,   0, 0, 36},    /* Type 4 */
+    {20, 30, 2000, 4000, 0, 24, 6, 19, 33, 22, 0,   0, 0, 36},    /* Type 4 */
 };
