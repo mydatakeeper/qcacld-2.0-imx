@@ -21566,11 +21566,10 @@ VOS_STATUS wma_get_buf_extscan_hotlist_cmd(tp_wma_handle wma_handle,
 	/* setbssid hotlist expects the bssid list
 	 * to be non zero value
 	 */
-	if (!numap) {
-		WMA_LOGE("%s: Invalid number of bssid's",
-			__func__);
-		return VOS_STATUS_E_INVAL;
-	}
+    if (!numap || (numap > WLAN_EXTSCAN_MAX_HOTLIST_APS)) {
+        WMA_LOGE("%s: Invalid number of APs: %d", __func__, numap);
+        return VOS_STATUS_E_INVAL;
+    }
 	num_entries = wma_get_hotlist_entries_per_page(
 					cmd, numap);
 
@@ -21756,11 +21755,12 @@ VOS_STATUS wma_get_buf_extscan_change_monitor_cmd(tp_wma_handle wma_handle,
 	int numap = psigchange->numAp;
 	tSirAPThresholdParam  *src_ap = psigchange->ap;
 
-	if (!numap) {
-		WMA_LOGE("%s: Invalid number of bssid's",
-			__func__);
+	if (!numap || (numap > WLAN_EXTSCAN_MAX_SIGNIFICANT_CHANGE_APS)) {
+		WMA_LOGE("%s: Invalid number of APs: %d",
+			__func__, numap);
 		return VOS_STATUS_E_INVAL;
 	}
+
 	len += WMI_TLV_HDR_SIZE;
 	len += numap * sizeof(wmi_extscan_wlan_change_bssid_param);
 
@@ -27098,13 +27098,7 @@ int wma_dfs_indicate_radar(struct ieee80211com *ic,
 		WMA_LOGE("%s:DFS- Invalid WMA handle",__func__);
 		return -ENOENT;
 	}
-	radar_event = (struct wma_dfs_radar_indication *)
-		vos_mem_malloc(sizeof(struct wma_dfs_radar_indication));
-	if (radar_event == NULL)
-	{
-		WMA_LOGE("%s:DFS- Invalid radar_event",__func__);
-		return -ENOENT;
-	}
+
 
 	/*
 	 * Do not post multiple Radar events on the same channel.
@@ -27114,6 +27108,12 @@ int wma_dfs_indicate_radar(struct ieee80211com *ic,
 	if ((ichan->ic_ieee  != (wma->dfs_ic->last_radar_found_chan)) ||
 	    ( pmac->sap.SapDfsInfo.disable_dfs_ch_switch == VOS_TRUE) )
 	{
+        radar_event = (struct wma_dfs_radar_indication *)
+           vos_mem_malloc(sizeof(*radar_event));
+        if (radar_event == NULL) {
+           WMA_LOGE(FL("Failed to allocate memory for radar_event"));
+           return -ENOMEM;
+        }
 		/* Indicate the radar event to HDD to stop the netif Tx queues*/
 		hdd_radar_event.ieee_chan_number = ichan->ic_ieee;
 		hdd_radar_event.chan_freq = ichan->ic_freq;

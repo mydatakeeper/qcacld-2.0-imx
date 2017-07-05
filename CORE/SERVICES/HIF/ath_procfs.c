@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013, 2016-2017 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -154,6 +154,8 @@ static ssize_t ath_procfs_diag_read(struct file *file, char __user *buf,
 		rv = HIFDiagReadMem(hif_hdl, (A_UINT32)(*pos),
 					(A_UINT8 *)read_buffer, count);
 	}
+    if (rv)
+       return -EIO;
 
 	if(copy_to_user(buf, read_buffer, count)) {
 		vos_mem_free(read_buffer);
@@ -161,11 +163,8 @@ static ssize_t ath_procfs_diag_read(struct file *file, char __user *buf,
 	} else
 		vos_mem_free(read_buffer);
 
-	if (rv == 0) {
-		return count;
-	} else {
-		return -EIO;
-	}
+    return count;
+
 }
 
 static ssize_t ath_procfs_diag_write(struct file *file, const char __user *buf,

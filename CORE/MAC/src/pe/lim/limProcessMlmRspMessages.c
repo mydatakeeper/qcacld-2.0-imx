@@ -2576,7 +2576,9 @@ limProcessApMlmAddBssRsp( tpAniSirGlobal pMac, tpSirMsgQ limMsgQ)
         else
             psessionEntry->limSystemRole = eLIM_STA_IN_IBSS_ROLE;
         schEdcaProfileUpdate(pMac, psessionEntry);
-        limInitPreAuthList(pMac);
+        //limInitPreAuthList(pMac);
+	    //Initialize number of pre-auth contexts
+	    limDeletePreAuthList(pMac);
         /* Check the SAP security configuration.If configured to
          * WEP then max clients supported is 16
          */
