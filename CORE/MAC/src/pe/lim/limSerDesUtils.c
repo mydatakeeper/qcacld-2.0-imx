@@ -1338,18 +1338,22 @@ limJoinReqSerDes(tpAniSirGlobal pMac, tpSirSmeJoinReq pJoinReq, tANI_U8 *pBuf)
     pBuf += pJoinReq->supportedChannels.numChnl;
     len-= pJoinReq->supportedChannels.numChnl;
 
-    pJoinReq->sub20_channelwidth = *pBuf++;
-    len--;
-#ifdef WLAN_FEATURE_FILS_SK
-    vos_mem_copy(&pJoinReq->fils_con_info, pBuf, sizeof(struct cds_fils_connection_info));
-    pBuf += sizeof(struct cds_fils_connection_info);
-    len -= sizeof(struct cds_fils_connection_info);
-#endif
     PELOG2(limLog(pMac, LOG2,
             FL("spectrumInd ON: minPower %d, maxPower %d , numChnls %d"),
             pJoinReq->powerCap.minTxPower,
             pJoinReq->powerCap.maxTxPower,
             pJoinReq->supportedChannels.numChnl);)
+
+    if (pJoinReq->messageType == eWNI_SME_JOIN_REQ)
+    {
+        pJoinReq->sub20_channelwidth = *pBuf++;
+        len--;
+    }
+#ifdef WLAN_FEATURE_FILS_SK
+    vos_mem_copy(&pJoinReq->fils_con_info, pBuf, sizeof(struct cds_fils_connection_info));
+    pBuf += sizeof(struct cds_fils_connection_info);
+    len -= sizeof(struct cds_fils_connection_info);
+#endif
 
     // Extract uapsdPerAcBitmask
     pJoinReq->uapsdPerAcBitmask = *pBuf++;
