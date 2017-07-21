@@ -4053,6 +4053,13 @@ REG_TABLE_ENTRY g_registry_table[] =
                 CFG_BTC_WLAN_INTERVAL_INQ_P2P_STA_MIN,
                 CFG_BTC_WLAN_INTERVAL_INQ_P2P_STA_MAX),
 
+   REG_VARIABLE(CFG_COEX_CONFIG_COEX_ENABLE_MMC_TDM, WLAN_PARAM_Integer,
+                hdd_config_t, coex_config_coex_enable_mmc_tdm,
+                VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+                CFG_COEX_CONFIG_COEX_ENABLE_MMC_TDM_DEFAULT,
+                CFG_COEX_CONFIG_COEX_ENABLE_MMC_TDM_MIN,
+                CFG_COEX_CONFIG_COEX_ENABLE_MMC_TDM_MAX),
+
    REG_VARIABLE(CFG_DOT11P_MODE_NAME, WLAN_PARAM_Integer,
                 hdd_config_t, dot11p_mode,
                 VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
@@ -6916,5 +6923,9 @@ void hdd_set_btc_bt_wlan_interval(hdd_context_t *hdd_ctx)
 		if (VOS_STATUS_SUCCESS != status)
 			hddLog(LOGE, "Fail to set coex inquiry p2p sta bt interval parameters");
 	}
-	
+    
+	status = sme_set_coex_config_coex_enable_mcc_tdm(
+			config->coex_config_coex_enable_mmc_tdm);
+	if (VOS_STATUS_SUCCESS != status)
+		hddLog(LOGE, "Fail to set coex enable mcc tdm parameters");
 }

@@ -2961,6 +2961,12 @@ FG_BTC_BT_INTERVAL_PAGE_P2P_STA_DEFAULT
 #define CFG_BTC_WLAN_INTERVAL_INQ_P2P_STA_MAX       (200)
 #define CFG_BTC_WLAN_INTERVAL_INQ_P2P_STA_DEFAULT   (30)
 
+#define CFG_COEX_CONFIG_COEX_ENABLE_MMC_TDM         "gEnableCoexMCCTDM"
+#define CFG_COEX_CONFIG_COEX_ENABLE_MMC_TDM_MIN      (0)
+#define CFG_COEX_CONFIG_COEX_ENABLE_MMC_TDM_MAX      (1)
+#define CFG_COEX_CONFIG_COEX_ENABLE_MMC_TDM_DEFAULT  (0)
+
+
 /* Parameters for roaming scans performed at high RSSI */
 
 /**
@@ -3660,6 +3666,8 @@ typedef struct
 
    uint32_t                    coex_inquiry_p2p_sta_bt_interval;
    uint32_t                    coex_inquiry_p2p_sta_wlan_interval;
+
+   uint32_t                    coex_config_coex_enable_mmc_tdm;
 } hdd_config_t;
 
 

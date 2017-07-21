@@ -4155,6 +4155,7 @@ VOS_STATUS sme_set_btc_bt_wlan_interval_inquiry_p2p(uint32_t bt_interval,
 					uint32_t p2p_interval);
 VOS_STATUS sme_set_btc_bt_wlan_interval_inquiry_p2p_sta(uint32_t bt_interval,
 					uint32_t p2p_sta_interval);
+VOS_STATUS sme_set_coex_config_coex_enable_mcc_tdm(uint32_t isEnable);
 
 void sme_send_disassoc_req_frame(tHalHandle hal, uint8_t session_id,
 		uint8_t *peer_mac, tANI_U16 reason, uint8_t wait_for_ack);

@@ -14235,6 +14235,8 @@ typedef enum wmi_coex_config_type {
      * INQUIRY
      */
     WMI_COEX_CONFIG_INQUIRY_P2P_STA_TDM = 11,
+    /* config disable/enable COEX TDM for MCC*/
+    WMI_COEX_CONFIG_COEX_ENABLE_MCC_TDM = 22
 } WMI_COEX_CONFIG_TYPE;
 
 
