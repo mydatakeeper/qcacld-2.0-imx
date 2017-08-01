@@ -283,6 +283,7 @@ struct ol_softc {
     bool                    enablelpasssupport;
 #endif
     bool                    enableRamdumpCollection;
+    bool                    enableSSR;
 };
 
 #ifdef PERE_IP_HDR_ALIGNMENT_WAR
