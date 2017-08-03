@@ -66,10 +66,7 @@
 #endif
 #include "qdf_crypto.h"
 #include "wlan_qct_wda.h"
-
-#ifdef WLAN_FEATURE_FILS_SK
 #include "lim_process_fils.h"
-#endif
 
 ////////////////////////////////////////////////////////////////////////
 /**
@@ -3546,10 +3543,8 @@ limSendAuthMgmtFrame(tpAniSirGlobal pMac,
                 frameLen = sizeof(tSirMacMgmtHdr) +
                            SIR_MAC_AUTH_CHALLENGE_OFFSET;
                 bodyLen  = SIR_MAC_AUTH_CHALLENGE_OFFSET;
-#ifdef WLAN_FEATURE_FILS_SK
-		frameLen += lim_create_fils_auth_data(pMac,
-						pAuthFrameBody, psessionEntry);
-#endif
+                frameLen += lim_create_fils_auth_data(pMac,
+                                                pAuthFrameBody, psessionEntry);
 
 #if defined WLAN_FEATURE_VOWIFI_11R
             if (pAuthFrameBody->authAlgoNumber == eSIR_FT_AUTH)
@@ -3755,9 +3750,8 @@ limSendAuthMgmtFrame(tpAniSirGlobal pMac,
        }
 #ifdef WLAN_FEATURE_FILS_SK
        else if (pAuthFrameBody->authAlgoNumber ==
-                     eSIR_FILS_SK_WITHOUT_PFS) {
-                /* TODO MDIE */
-                limLog(pMac, LOG1,FL("appending fils Auth data"));
+                      eSIR_FILS_SK_WITHOUT_PFS) {
+               limLog(pMac, LOG1,FL("appending fils Auth data"));
                lim_add_fils_data_to_auth_frame(psessionEntry, pBody);
        }
 #endif

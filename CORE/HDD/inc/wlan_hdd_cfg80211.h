@@ -126,8 +126,6 @@ typedef struct {
 }__attribute__((packed)) qcom_ie_age ;
 #endif
 
-#ifdef WLAN_FEATURE_FILS_SK
-
 #ifndef NL80211_AUTHTYPE_FILS_SK
 #define NL80211_AUTHTYPE_FILS_SK 5
 #endif
@@ -150,7 +148,6 @@ typedef struct {
 #define WLAN_AKM_SUITE_FT_FILS_SHA384 0x000FAC11
 #endif
 
-#endif
 /* Vendor id to be used in vendor specific command and events
  * to user space.
  * NOTE: The authoritative place for definition of QCA_NL80211_VENDOR_ID,

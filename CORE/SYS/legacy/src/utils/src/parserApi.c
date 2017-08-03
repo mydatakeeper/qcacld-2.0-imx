@@ -51,11 +51,8 @@
 #endif
 
 #include "regdomain_common.h"
-
-#ifdef WLAN_FEATURE_FILS_SK
 #include "qdf_crypto.h"
 #include "lim_process_fils.h"
-#endif
 
 #define DOT11F_RSN_VERSION 1    /* current supported version */
 #define DOT11F_RSN_OUI_SIZE 4

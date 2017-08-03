@@ -80,15 +80,15 @@ typedef enum eAniAuthType
 #if defined WLAN_FEATURE_VOWIFI_11R
     eSIR_FT_AUTH,
 #endif
-#if defined FEATURE_WLAN_ESE
-    eSIR_LEAP_AUTH = 0x80,
-#endif
-    eSIR_AUTO_SWITCH,
 #ifdef WLAN_FEATURE_FILS_SK
     eSIR_FILS_SK_WITHOUT_PFS = 4,
     eSIR_FILS_SK_WITH_PFS = 5,
     eSIR_FILS_PK_AUTH = 6,
 #endif
+#if defined FEATURE_WLAN_ESE
+    eSIR_LEAP_AUTH = 0x80,
+#endif
+    eSIR_AUTO_SWITCH,
     eSIR_DONOT_USE_AUTH_TYPE = SIR_MAX_ENUM_SIZE
 } tAniAuthType;
 

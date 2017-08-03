@@ -52,9 +52,8 @@
 #include "limFT.h"
 #endif
 #include "vos_utils.h"
-#ifdef WLAN_FEATURE_FILS_SK
 #include "lim_process_fils.h"
-#endif
+
 /**
  * isAuthValid
  *
@@ -582,18 +581,16 @@ limProcessAuthFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo, tpPESession pse
 
     pRxAuthFrameBody = rxAuthFrame;
 
-   PELOGW(limLog(pMac, LOGW,
+    PELOGW(limLog(pMac, LOGW,
            FL("Received Auth frame with type=%d seqnum=%d, status=%d (%d)"),
            (tANI_U32) pRxAuthFrameBody->authAlgoNumber,
            (tANI_U32) pRxAuthFrameBody->authTransactionSeqNumber,
            (tANI_U32) pRxAuthFrameBody->authStatusCode,(tANI_U32)pMac->lim.gLimNumPreAuthContexts);)
-#ifdef WLAN_FEATURE_FILS_SK
     if (!lim_is_valid_fils_auth_frame(pMac, psessionEntry, pRxAuthFrameBody))
     {
         limLog(pMac, LOGE, FL("Received invalid FILS auth packet"));
         goto free;
     }
-#endif
     // IOT Workaround: with invalid WEP password, some APs reply AUTH frame 4
     // with invalid seqNumber. This AUTH frame will be dropped by driver,
     // thus driver sends the generic status code instead of protocol status code.
@@ -1173,14 +1170,12 @@ limProcessAuthFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo, tpPESession pse
             if (pRxAuthFrameBody->authStatusCode ==
                 eSIR_MAC_SUCCESS_STATUS)
             {
-#ifdef WLAN_FEATURE_FILS_SK
                 if (lim_process_fils_auth_frame2(pMac, psessionEntry, pRxAuthFrameBody))
                 {
                     limRestoreFromAuthState(pMac, eSIR_SME_SUCCESS,
                                            pRxAuthFrameBody->authStatusCode, psessionEntry);
                     goto free;
                 }
-#endif
                 if (pRxAuthFrameBody->authAlgoNumber ==
                     eSIR_OPEN_SYSTEM)
                 {

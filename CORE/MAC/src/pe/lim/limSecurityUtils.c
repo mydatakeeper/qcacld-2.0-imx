@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2017 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -456,10 +456,6 @@ limDeletePreAuthNode(tpAniSirGlobal pMac, tSirMacAddr macAddr)
 
 } /*** end limDeletePreAuthNode() ***/
 
-
-
-
-
 /**
  * limRestoreFromPreAuthState
  *
@@ -550,6 +546,11 @@ static int lim_get_fils_auth_data_len(void)
             SIR_FILS_WRAPPED_DATA_MAX_SIZE + SIR_FILS_NONCE_LENGTH;
     return len;
 }
+#else
+static int lim_get_fils_auth_data_len(void)
+{
+    return 0;
+}
 #endif
 
 /**
@@ -611,10 +612,9 @@ limEncryptAuthFrame(tpAniSirGlobal pMac, tANI_U8 keyId, tANI_U8 *pKey, tANI_U8 *
                     tANI_U8 *pEncrBody, tANI_U32 keyLength)
 {
     tANI_U8  seed[LIM_SEED_LENGTH], icv[SIR_MAC_WEP_ICV_LENGTH];
+    int framelen;
 
-#ifdef WLAN_FEATURE_FILS_SK
-    int framelen = sizeof(tSirMacAuthFrameBody) - lim_get_fils_auth_data_len();
-#endif
+    framelen = sizeof(tSirMacAuthFrameBody) - lim_get_fils_auth_data_len();
     keyLength += 3;
 
     // Bytes 0-2 of seed is IV
@@ -624,19 +624,12 @@ limEncryptAuthFrame(tpAniSirGlobal pMac, tANI_U8 keyId, tANI_U8 *pKey, tANI_U8 *
     // Bytes 3-7 of seed is key
     vos_mem_copy((tANI_U8 *) &seed[3], pKey, keyLength - 3);
 
-#ifdef WLAN_FEATURE_FILS_SK
     // Compute CRC-32 and place them in last 4 bytes of plain text
     limComputeCrc32(icv, pPlainText, framelen);
 
     vos_mem_copy((pPlainText + framelen),
                   icv, SIR_MAC_WEP_ICV_LENGTH);
-#else
 
-    limComputeCrc32(icv, pPlainText, sizeof(tSirMacAuthFrameBody));
-
-    vos_mem_copy((pPlainText + sizeof(tSirMacAuthFrameBody)),
-                  icv, SIR_MAC_WEP_ICV_LENGTH);
-#endif
     // Run RC4 on plain text with the seed
     limRC4(pEncrBody + SIR_MAC_WEP_IV_LENGTH,
            (tANI_U8 *) pPlainText, seed, keyLength,

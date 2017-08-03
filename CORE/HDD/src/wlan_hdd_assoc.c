@@ -1651,7 +1651,7 @@ void hdd_PerformRoamSetKeyComplete(hdd_adapter_t *pAdapter)
     pHddStaCtx->roam_info.deferKeyComplete = FALSE;
 }
 
-#ifdef WLAN_FEATURE_FILS_SK
+#if defined(WLAN_FEATURE_FILS_SK) && defined(CFG80211_FILS_SK_OFFLOAD_SUPPORT)
 static void hdd_clear_fils_connection_info(hdd_adapter_t *adapter)
 {
        hdd_wext_state_t *wext_state = WLAN_HDD_GET_WEXT_STATE_PTR(adapter);
@@ -1665,6 +1665,7 @@ static void hdd_clear_fils_connection_info(hdd_adapter_t *adapter)
 static void hdd_clear_fils_connection_info(hdd_adapter_t *adapter)
 { }
 #endif
+
 /**
  * hdd_sap_restart_handle() - to handle restarting of SAP
  * @work: name of the work

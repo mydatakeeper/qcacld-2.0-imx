@@ -3366,7 +3366,7 @@ eHalStatus csrRoamIssueDeauth( tpAniSirGlobal pMac, tANI_U32 sessionId, eCsrRoam
     {
         vos_mem_copy(&bssId, pSession->pConnectBssDesc->bssId, sizeof(tCsrBssid));
     }
-    smsLog( pMac, LOGE, "CSR Attempting to Deauth Bssid= "MAC_ADDRESS_STR,
+    smsLog( pMac, LOG2, "CSR Attempting to Deauth Bssid= "MAC_ADDRESS_STR,
                   MAC_ADDR_ARRAY(bssId));
     csrRoamSubstateChange( pMac, NewSubstate, sessionId);
 
@@ -6952,28 +6952,27 @@ static tANI_BOOLEAN csrRoamProcessResults( tpAniSirGlobal pMac, tSmeCmd *pComman
  * Return: None
  */
 static inline void update_profile_fils_info(tCsrRoamProfile *des_profile,
-					tCsrRoamProfile *src_profile)
+                                        tCsrRoamProfile *src_profile)
 {
-	if (!src_profile->fils_con_info)
-		return;
+    if (!src_profile->fils_con_info)
+        return;
 
-	if (src_profile->fils_con_info->is_fils_connection) {
-		des_profile->fils_con_info =
-			vos_mem_malloc(sizeof(struct cds_fils_connection_info));
-		if (!des_profile->fils_con_info) {
-            VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
-                  FL("failed to allocate memory"));
-			return;
-		}
-
-		vos_mem_copy(des_profile->fils_con_info,
-			      src_profile->fils_con_info,
-			      sizeof(struct cds_fils_connection_info));
-	}
+    if (src_profile->fils_con_info->is_fils_connection) {
+        des_profile->fils_con_info =
+            vos_mem_malloc(sizeof(struct cds_fils_connection_info));
+            if (!des_profile->fils_con_info) {
+                VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
+                    FL("failed to allocate memory"));
+                return;
+            }
+            vos_mem_copy(des_profile->fils_con_info,
+                src_profile->fils_con_info,
+                sizeof(struct cds_fils_connection_info));
+    }
 }
 #else
 static inline void update_profile_fils_info(tCsrRoamProfile *des_profile,
-					tCsrRoamProfile *src_profile)
+                                        tCsrRoamProfile *src_profile)
 { }
 #endif
 
@@ -7171,9 +7170,7 @@ eHalStatus csrRoamCopyProfile(tpAniSirGlobal pMac, tCsrRoamProfile *pDstProfile,
         vos_mem_copy(&pDstProfile->addIeParams,
                      &pSrcProfile->addIeParams,
                      sizeof(tSirAddIeParams));
-#ifdef WLAN_FEATURE_FILS_SK
-	update_profile_fils_info(pDstProfile, pSrcProfile);
-#endif
+        update_profile_fils_info(pDstProfile, pSrcProfile);
         pDstProfile->beacon_tx_rate = pSrcProfile->beacon_tx_rate;
         if (pSrcProfile->supported_rates.numRates) {
             vos_mem_copy(pDstProfile->supported_rates.rate,

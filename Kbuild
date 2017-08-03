@@ -98,9 +98,9 @@ ifeq ($(KERNEL_BUILD), 0)
 	#Flag to enable Fast Transition (11r) feature
 	CONFIG_QCOM_VOWIFI_11R := y
 
-        ifeq ($(KERNELRELEASE), 4.9.11+)
+        ifneq ($(KERNELRELEASE), 4.9.11+)
         #Flag to enable FILS Feature (11ai)
-        CONFIG_WLAN_FEATURE_FILS := y
+        CONFIG_WLAN_FEATURE_FILS := n
         endif
 
 	ifneq ($(CONFIG_QCA_CLD_WLAN),)
@@ -1051,10 +1051,7 @@ CDEFINES += -DFEATURE_COEX_PTA_CONFIG_ENABLE
 endif
 
 ifeq ($(CONFIG_WLAN_FEATURE_FILS),y)
-CDEFINES += -DWLAN_FEATURE_FILS_SK \
-            -DCFG80211_CONNECT_DONE \
-            -DCFG80211_FILS_SK_OFFLOAD_SUPPORT \
-            -DCFG80211_CONNECT_BSS
+CDEFINES += -DWLAN_FEATURE_FILS_SK
 endif
 
 ifeq ($(CONFIG_SCPC_FEATURE), y)

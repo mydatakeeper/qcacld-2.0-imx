@@ -60,7 +60,7 @@
 
 #define SIR_MDIE_SIZE               3
 
-#define SIR_MAX_ELEMENT_ID			255
+#define SIR_MAX_ELEMENT_ID          255
 
 // Increase dwell time for P2P search in ms
 #define P2P_SEARCH_DWELL_TIME_INCREASE   20

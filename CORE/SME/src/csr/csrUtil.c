@@ -5440,29 +5440,28 @@ static tANI_BOOLEAN csrIsRateSetMatch( tpAniSirGlobal pMac,
  * Return: true if success else false
  */
 static bool csr_is_fils_realm_match(tSirBssDescription *bss_descr,
-			tCsrScanResultFilter *filter)
+                        tCsrScanResultFilter *filter)
 {
-	int i;
-	bool is_match = true;
+    int i;
+    bool is_match = true;
 
-	if (filter->realm_check) {
-		is_match = false;
-		for (i = 0; i < bss_descr->fils_info_element.realm_cnt; i++) {
-			if (!adf_os_mem_cmp(filter->fils_realm,
-				bss_descr->fils_info_element.realm[i],
-				SIR_REALM_LEN)) {
-				return true;
-			}
-		}
-	}
-
-	return is_match;
+    if (filter->realm_check) {
+        is_match = false;
+        for (i = 0; i < bss_descr->fils_info_element.realm_cnt; i++) {
+            if (!adf_os_mem_cmp(filter->fils_realm,
+                    bss_descr->fils_info_element.realm[i],
+                    SIR_REALM_LEN)) {
+                    return true;
+            }
+        }
+    }
+    return is_match;
 }
 #else
 static bool csr_is_fils_realm_match(tSirBssDescription *bss_descr,
-			tCsrScanResultFilter *filter)
+                                    tCsrScanResultFilter *filter)
 {
-	return true;
+    return true;
 }
 #endif
 
@@ -5605,7 +5604,7 @@ tANI_BOOLEAN csrMatchBSS( tHalHandle hHal, tSirBssDescription *pBssDesc, tCsrSca
         }
 #endif
         fRC = eANI_BOOLEAN_TRUE;
-	if (fRC)
+        if (fRC)
             fRC = csr_is_fils_realm_match(pBssDesc, pFilter);
 
     } while( 0 );
