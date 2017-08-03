@@ -1065,13 +1065,7 @@ static void ramdump_work_handler(struct work_struct *ramdump)
 	cnss_device_crashed();
 #endif
 	vos_set_logp_in_progress(VOS_MODULE_ID_VOSS, FALSE);
-    if(ramdump_scn->enableSSR)
-    {
-        printk("%s: RAM dump done,start recovery!\n", __func__);
-        vos_send_hang_event();
-        g_force_hang = 1;
-        g_avoid_command = 1;
-    }
+
 	return;
 
 out_fail:
@@ -1253,17 +1247,14 @@ void ol_target_failure(void *instance, A_STATUS status)
 	int ret;
 #endif
 #ifdef WLAN_SSR_ENABLED
-	if (wma->wmi_ready && scn->enableSSR) { 
+	if (wma->wmi_ready && !scn->enableRamdumpCollection) { 
 		pr_err("%s, Target is asserted but need to recover.\n", __func__); 
-        if( !scn->enableRamdumpCollection){
-            pr_err("%s, no Ramdump needed,start to recover.\n", __func__); 
-            vos_send_hang_event();
-    		g_force_hang = 1;
-    		g_avoid_command = 1;
-    		return;
-        }
+		vos_send_hang_event();
+		g_force_hang = 1;
+		g_avoid_command = 1;
+		return;
 	} else { 
-		pr_err("%s, Target is asserted but don't need recover.\n", __func__); 
+		printk("%s, Target is asserted but need to collect ramdump.\n", __func__); 
 	} 
 #endif
 
