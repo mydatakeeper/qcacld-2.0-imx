@@ -599,9 +599,7 @@ sirConvertAssocReqFrame2Struct(struct sAniSirGlobal *pMac,
 
 tSirRetStatus
 sirConvertAssocRespFrame2Struct(struct sAniSirGlobal *pMac,
-#ifdef WLAN_FEATURE_FILS_SK
                                 tpPESession psessionEntry,
-#endif
                                 tANI_U8 * frame,
                                 tANI_U32 len,
                                 tpSirAssocRsp assoc);
@@ -1093,7 +1091,6 @@ void PopulateDot11fAssocRspRates ( tpAniSirGlobal pMac, tDot11fIESuppRates *pSup
 int FindIELocation( tpAniSirGlobal pMac,
                            tpSirRSNie pRsnIe,
                            tANI_U8 EID);
-#endif
 
 #ifdef WLAN_FEATURE_11AC
 tSirRetStatus
@@ -1154,4 +1151,11 @@ tSirRetStatus sirvalidateandrectifyies(tpAniSirGlobal pMac,
 void populate_dot11f_fils_params(tpAniSirGlobal mac_ctx,
                  tDot11fAssocRequest *frm,
                  tpPESession pe_session);
+#else
+static inline void populate_dot11f_fils_params(tpAniSirGlobal mac_ctx,
+                 tDot11fAssocRequest *frm,
+                 tpPESession pe_session)
+{}
 #endif
+
+#endif  /* __PARSE_H__ */

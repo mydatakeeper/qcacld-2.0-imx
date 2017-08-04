@@ -2409,11 +2409,6 @@ sir_convert_fils_data_to_probersp_struct(tpSirProbeRespBeacon probe_resp,
         tDot11fProbeResponse *pr)
 {
 }
-static inline void populate_dot11f_fils_params(tpAniSirGlobal mac_ctx,
-                 tDot11fAssocRequest *frm,
-                 tpPESession pe_session)
-{
-}
 #endif
 tSirRetStatus sirConvertProbeFrame2Struct(tpAniSirGlobal       pMac,
                                           tANI_U8             *pFrame,
@@ -2996,9 +2991,7 @@ static inline void fils_convert_assoc_rsp_frame2_struct(tpAniSirGlobal pMac,
 
 tSirRetStatus
 sirConvertAssocRespFrame2Struct(tpAniSirGlobal pMac,
-#ifdef WLAN_FEATURE_FILS_SK
                                 tpPESession psessionEntry,
-#endif
                                 tANI_U8            *pFrame,
                                 tANI_U32            nFrame,
                                 tpSirAssocRsp  pAssocRsp)

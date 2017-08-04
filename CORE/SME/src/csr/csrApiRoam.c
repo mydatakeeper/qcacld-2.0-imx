@@ -5874,7 +5874,7 @@ static VOS_STATUS populate_fils_params_join_rsp(tpAniSirGlobal mac_ctx,
     roam_fils_info->gtk_len = fils_join_rsp->gtk_len;
     vos_mem_copy(roam_fils_info->gtk,
              fils_join_rsp->gtk, roam_fils_info->gtk_len);
-    smsLog(mac_ctx, LOGW, FL("FILS connect params copied to CSR!"));
+    smsLog(mac_ctx, LOG1, FL("FILS connect params copied to CSR!"));
 
 free_fils_join_rsp:
     vos_mem_free(fils_join_rsp->fils_pmk);
@@ -14186,22 +14186,22 @@ static eHalStatus csrRoamStartWds( tpAniSirGlobal pMac, tANI_U32 sessionId, tCsr
  * Return: None
  */
 static void csr_update_fils_connection_info(tCsrRoamProfile *profile,
-					                        tANI_U8 **pBuf)
+                                            tANI_U8 **pBuf)
 {
-	if (profile->fils_con_info &&
-	    profile->fils_con_info->is_fils_connection) {
-		 vos_mem_copy(*pBuf,
-			(tANI_U8 *)profile->fils_con_info,
-			sizeof(struct cds_fils_connection_info));
-	} else {
-		 vos_mem_zero(*pBuf,
-			sizeof(struct cds_fils_connection_info));
-	}
+    if (profile->fils_con_info &&
+        profile->fils_con_info->is_fils_connection) {
+            vos_mem_copy(*pBuf,
+                        (tANI_U8 *)profile->fils_con_info,
+                        sizeof(struct cds_fils_connection_info));
+    } else {
+            vos_mem_zero(*pBuf,
+            sizeof(struct cds_fils_connection_info));
+    }
     *pBuf += sizeof(struct cds_fils_connection_info);
 }
 #else
 static void csr_update_fils_connection_info(tCsrRoamProfile *profile,
-					                        tANI_U8 **pBuf)
+                                            tANI_U8 **pBuf)
 { }
 #endif
 

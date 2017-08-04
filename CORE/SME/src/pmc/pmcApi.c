@@ -3148,6 +3148,8 @@ eHalStatus pmcGetFilterMatchCount
 #endif // WLAN_FEATURE_PACKET_FILTERING
 
 #ifdef WLAN_FEATURE_GTK_OFFLOAD
+
+#define GTK_OFFLOAD_DISABLE 1
 /* ---------------------------------------------------------------------------
     \fn pmcSetGTKOffload
     \brief  Set GTK offload feature.
@@ -3160,7 +3162,6 @@ eHalStatus pmcGetFilterMatchCount
 eHalStatus pmcSetGTKOffload (tHalHandle hHal, tpSirGtkOffloadParams pGtkOffload,
                                   tANI_U8 sessionId)
 {
-#define GTK_OFFLOAD_DISABLE 1
     tpSirGtkOffloadParams pRequestBuf;
     vos_msg_t msg;
     tpAniSirGlobal   pMac = PMAC_STRUCT(hHal);

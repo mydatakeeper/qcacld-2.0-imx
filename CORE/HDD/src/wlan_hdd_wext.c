@@ -11333,9 +11333,10 @@ static int __iw_set_two_ints_getnone(struct net_device *dev,
                         hdd_ctx->cfg_ini->sub_20_channel_width;
 
             roam_profile = vos_mem_malloc(sizeof(tCsrRoamProfile));
-            if (roam_profile == NULL)
+            if (roam_profile == NULL){
+                hddLog(LOGE, "Failed to allocate memory");
                 return -ENOMEM;
-
+            }
             vos_mem_zero(roam_profile, sizeof(*roam_profile));
 
             if (vht_channel_width == 4) {

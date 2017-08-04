@@ -2071,10 +2071,8 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
     tANI_U8            *pIe = NULL;
     tANI_U32            ieLen = 0;
     tANI_U32            fixed_param_len = 0;
-#ifdef WLAN_FEATURE_FILS_SK
-    uint32_t aes_block_size_len = 0;
-    VOS_STATUS vos_status;
-#endif
+    VOS_STATUS          vos_status;
+    tANI_U32            aes_block_size_len = 0;
 
     if(NULL == psessionEntry)
     {
@@ -2359,13 +2357,10 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
                                             &pFrm->QComVendorIE,
                                             psessionEntry);
 
-#ifdef WLAN_FEATURE_FILS_SK
     if (lim_is_fils_connection(psessionEntry)) {
         populate_dot11f_fils_params(pMac, pFrm, psessionEntry);
         aes_block_size_len = AES_BLOCK_SIZE;
     }
-#endif
-
 
     nStatus = dot11fGetPackedAssocRequestSize(pMac, pFrm, &nPayload);
     if (DOT11F_FAILED(nStatus))
@@ -2383,11 +2378,8 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
              nStatus);
     }
 
-    nBytes = nPayload + 
-            sizeof(tSirMacMgmtHdr) + nAddIELen;
-#ifdef WLAN_FEATURE_FILS_SK
-    nBytes += aes_block_size_len;
-#endif
+    nBytes = nPayload + sizeof(tSirMacMgmtHdr)
+                      + nAddIELen + aes_block_size_len;
 
     halstatus = palPktAlloc( pMac->hHdd, HAL_TXRX_FRM_802_11_MGMT,
             ( tANI_U16 )nBytes, ( void** ) &pFrame,
@@ -2468,7 +2460,6 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
         nPayload += nAddIELen;
     }
 
-#ifdef WLAN_FEATURE_FILS_SK
     if (lim_is_fils_connection(psessionEntry)) {
         vos_status = aead_encrypt_assoc_req(pMac, psessionEntry,
                                             pFrame, &nPayload);
@@ -2482,7 +2473,6 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
             return;
         }
     }
-#endif
 
     psessionEntry->assocReq = vos_mem_malloc(nPayload);
     if ( NULL == psessionEntry->assocReq )

@@ -37,8 +37,6 @@
 
 int alloc_tfm(uint8_t *type);
 
-#define WLAN_FILS_DEBUG
-
 #ifdef WLAN_FILS_DEBUG
 /**
  * lim_fils_data_dump()- dump fils data
@@ -95,20 +93,6 @@ static uint8_t lim_get_auth_tag_len(enum fils_erp_cryptosuite crypto_suite)
         return -EINVAL;
     }
 }
-#if 0
-/**
- * lim_copy_u16_be()- This API copy a u16 value in buffer in network byte order
- * @ptr: pointer to buffer
- * @u16_val: value needs to be copied
- *
- * Return: None
- */
-static void lim_copy_u16_be(uint8_t *ptr, uint16_t u16_val)
-{
-    ptr[0] = u16_val >> 8;
-    ptr[1] = u16_val & 0xff;
-}
-#endif
 
 /**
  * lim_copy_u16_be()- This API reads u16 value from network byte order buffer
@@ -1433,24 +1417,20 @@ static VOS_STATUS lim_parse_kde_elements(tpAniSirGlobal mac_ctx,
             switch(data_type) {
             /* TODO - is anymore KDE type expected */
             case DATA_TYPE_GTK:
-				limLog(mac_ctx, LOGE, FL("GTK found "));
+					limLog(mac_ctx, LOG1, FL("GTK found "));
 				vos_mem_copy(fils_info->gtk, (ie_data +
 					     GTK_OFFSET), (data_len -
 					     GTK_OFFSET));
 				fils_info->gtk_len = (data_len - GTK_OFFSET);
-				lim_fils_data_dump("GTK: ", fils_info->gtk,
-						   fils_info->gtk_len);
 				break;
             case DATA_TYPE_IGTK:
-				limLog(mac_ctx, LOGE, FL("IGTK found"));
+					limLog(mac_ctx, LOG1, FL("IGTK found"));
 				fils_info->igtk_len = (data_len - IGTK_OFFSET);
 				vos_mem_copy(fils_info->igtk, (ie_data +
 					     IGTK_OFFSET), (data_len -
 					     IGTK_OFFSET));
 				vos_mem_copy(fils_info->ipn, (ie_data +
 					     IPN_OFFSET), IPN_LEN);
-				lim_fils_data_dump("IGTK: ", fils_info->igtk,
-						   fils_info->igtk_len);
             break;
             default:
                 limLog(mac_ctx, LOGE, FL("Unknown KDE data type %x"),
@@ -1597,16 +1577,16 @@ static VOS_STATUS find_ie_data_after_fils_session_ie(tpAniSirGlobal mac_ctx,
  *
  * Return: zero on success, error otherwise
  */
-static int fils_aead_encrypt(const u8 *kek, unsigned int kek_len,
-			     const u8 *own_mac, const u8 *bssid,
-			     const u8 *snonce, const u8 *anonce,
-			     const u8 *data, size_t data_len, u8 *plain_text,
-			     size_t plain_text_len, u8 *out)
+static int fils_aead_encrypt(const uint8_t *kek, unsigned int kek_len,
+		const uint8_t *own_mac, const uint8_t *bssid,
+		const uint8_t *snonce, const uint8_t *anonce,
+		const uint8_t *data, size_t data_len, uint8_t *plain_text,
+		size_t plain_text_len, uint8_t *out)
 {
-	u8 v[AES_BLOCK_SIZE];
-	const u8 *aad[6];
+	uint8_t v[AES_BLOCK_SIZE];
+	const uint8_t *aad[6];
 	size_t aad_len[6];
-	u8 *buf;
+	uint8_t *buf;
 	int ret;
 
 	/* SIV Encrypt/Decrypt takes input key of length 256, 384 or 512 bits */
@@ -1620,9 +1600,11 @@ static int fils_aead_encrypt(const u8 *kek, unsigned int kek_len,
 	    anonce == NULL || data_len == 0 || plain_text_len == 0 ||
 	    out == NULL) {
 		VOS_TRACE(VOS_MODULE_ID_PE, VOS_TRACE_LEVEL_ERROR,
-			  FL("Error missing params mac:%p bssid:%p snonce:%p anonce:%p data_len:%zu plain_text_len:%zu out:%p"),
-			  own_mac, bssid, snonce, anonce, data_len,
-			  plain_text_len, out);
+				FL("Error missing params mac:%p bssid:%p snonce:%p"
+				    "anonce:%p data_len:%zu"
+				    "plain_text_len:%zu out:%p"),
+				own_mac, bssid, snonce, anonce, data_len,
+				plain_text_len, out);
 		return -EINVAL;
 	}
 
@@ -1710,8 +1692,6 @@ VOS_STATUS aead_encrypt_assoc_req(tpAniSirGlobal mac_ctx,
 	}
 	data_len = ((*frm_len) - plain_text_len);
 
-	lim_fils_data_dump("Plain text: ", plain_text, plain_text_len);
-
 	/* Overwrite the AEAD encrypted output @ plain_text */
 	if (fils_aead_encrypt(fils_info->kek, fils_info->kek_len,
 			      pe_session->selfMacAddr, pe_session->bssId,
@@ -1750,18 +1730,18 @@ VOS_STATUS aead_encrypt_assoc_req(tpAniSirGlobal mac_ctx,
  *
  * Return: zero on success, error otherwise
  */
-static int fils_aead_decrypt(const u8 *kek, unsigned int kek_len,
-			     const u8 *own_mac, const u8 *bssid,
-			     const u8 *snonce, const u8 *anonce,
-			     const u8 *data, size_t data_len, u8 *ciphered_text,
-			     size_t ciphered_text_len, u8 *plain_text)
+static int fils_aead_decrypt(const uint8_t *kek, unsigned int kek_len,
+		const uint8_t *own_mac, const uint8_t *bssid,
+		const uint8_t *snonce, const uint8_t *anonce,
+		const uint8_t *data, size_t data_len, uint8_t *ciphered_text,
+		size_t ciphered_text_len, uint8_t *plain_text)
 {
-	const u8 *aad[6];
+	const uint8_t *aad[6];
 	size_t aad_len[6];
-	u8 *buf;
+	uint8_t *buf;
 	size_t buf_len;
-	u8 v[AES_BLOCK_SIZE];
-	u8 siv[AES_BLOCK_SIZE];
+	uint8_t v[AES_BLOCK_SIZE];
+	uint8_t siv[AES_BLOCK_SIZE];
 	int ret;
 
 	/* SIV Encrypt/Decrypt takes input key of length 256, 384 or 512 bits */
@@ -1775,9 +1755,11 @@ static int fils_aead_decrypt(const u8 *kek, unsigned int kek_len,
 	    anonce == NULL || data_len == 0 || ciphered_text_len == 0 ||
 	    plain_text == NULL) {
 		VOS_TRACE(VOS_MODULE_ID_PE, VOS_TRACE_LEVEL_ERROR,
-			  FL("Error missing params mac:%p bssid:%p snonce:%p anonce:%p data_len:%zu ciphered_text_len:%zu plain_text:%p"),
-			  own_mac, bssid, snonce, anonce, data_len,
-			  ciphered_text_len, plain_text);
+				FL("Error missing params mac:%p bssid:%p snonce:%p"
+				    "anonce:%p data_len:%zu ciphered_text_len:%zu"
+				    "plain_text:%p"),
+				own_mac, bssid, snonce, anonce, data_len,
+				ciphered_text_len, plain_text);
 		return -EINVAL;
 	}
 

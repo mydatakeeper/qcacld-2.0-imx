@@ -3619,7 +3619,6 @@ static bool csr_update_pmksa_for_cache_id(tSirBssDescription *bss_desc,
         bss_desc->bssId, VOS_MAC_ADDR_SIZE);
 
     return true;
-
 }
 
 /*

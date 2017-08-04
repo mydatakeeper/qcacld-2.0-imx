@@ -57,9 +57,7 @@
 #include "nan_datapath.h"
 
 #include "sirApi.h"
-#ifdef WLAN_FEATURE_FILS_SK
 #include "lim_process_fils.h"
-#endif
 
 /**
  * limRemoveSsidFromScanCache()
@@ -470,12 +468,9 @@ limSendSmeJoinReassocRsp(tpAniSirGlobal pMac, tANI_U16 msgType,
                 pSirSmeJoinRsp->nss = pStaDs->nss;
                 pSirSmeJoinRsp->max_rate_flags =
                                 lim_get_max_rate_flags(pMac, pStaDs);
-#ifdef WLAN_FEATURE_FILS_SK
                 /* Copy FILS params only for Successful join */
                 populate_fils_connect_params(pMac, psessionEntry,
                                              pSirSmeJoinRsp);
-#endif
-
             }
         }
 

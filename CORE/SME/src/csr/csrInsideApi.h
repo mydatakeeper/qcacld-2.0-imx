@@ -221,8 +221,8 @@ struct csr_scan_for_ssid_context
                                             ( eCSR_ENCRYPT_TYPE_WEP104_STATICKEY == (encType) ) )
 #ifdef WLAN_FEATURE_FILS_SK
 #define CSR_IS_AUTH_TYPE_FILS(auth_type) \
-                ((eCSR_AUTH_TYPE_FILS_SHA256 == auth_type) ||   \
-                (eCSR_AUTH_TYPE_FILS_SHA384 == auth_type) ||    \
+                ((eCSR_AUTH_TYPE_FILS_SHA256 == auth_type) || \
+                (eCSR_AUTH_TYPE_FILS_SHA384 == auth_type) || \
                 (eCSR_AUTH_TYPE_FT_FILS_SHA256 == auth_type) || \
                 (eCSR_AUTH_TYPE_FT_FILS_SHA384 == auth_type))
 #else
