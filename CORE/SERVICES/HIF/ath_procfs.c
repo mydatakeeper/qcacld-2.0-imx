@@ -155,7 +155,10 @@ static ssize_t ath_procfs_diag_read(struct file *file, char __user *buf,
 					(A_UINT8 *)read_buffer, count);
 	}
     if (rv)
-       return -EIO;
+    {
+        vos_mem_free(read_buffer);
+        return -EIO;
+    }
 
 	if(copy_to_user(buf, read_buffer, count)) {
 		vos_mem_free(read_buffer);
