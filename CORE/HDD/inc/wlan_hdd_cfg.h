@@ -3030,6 +3030,34 @@ FG_BTC_BT_INTERVAL_PAGE_P2P_STA_DEFAULT
 #define CFG_BTC_WLAN_INTERVAL_PAGE_SAP_MAX       (200)
 #define CFG_BTC_WLAN_INTERVAL_PAGE_SAP_DEFAULT   (30)
 
+
+/*
+ * <ini>
+ * arp_ac_category - ARP access category
+ * @Min: 0
+ * @Max: 3
+ * @Default: 3
+ *
+ * Firmware by default categorizes ARP packets with VOICE TID.
+ * This ini shall be used to override the default configuration.
+ * Access category enums are referenced in ieee80211_common.h
+ * WME_AC_BE = 0 (Best effort)
+ * WME_AC_BK = 1 (Background)
+ * WME_AC_VI = 2 (Video)
+ * WME_AC_VO = 3 (Voice)
+ *
+ * Related: none
+ *
+ * Usage: Internal/External
+ *
+ * </ini>
+ */
+#define CFG_ARP_AC_CATEGORY                "arp_ac_category"
+#define CFG_ARP_AC_CATEGORY_MIN            (0)
+#define CFG_ARP_AC_CATEGORY_MAX            (3)
+#define CFG_ARP_AC_CATEGORY_DEFAULT        (3)
+
+
 /*---------------------------------------------------------------------------
   Type declarations
   -------------------------------------------------------------------------*/
@@ -3668,6 +3696,7 @@ typedef struct
    uint32_t                    coex_inquiry_p2p_sta_wlan_interval;
 
    uint32_t                    coex_config_coex_enable_mcc_tdm;
+   uint32_t                    arp_ac_category;
 } hdd_config_t;
 
 

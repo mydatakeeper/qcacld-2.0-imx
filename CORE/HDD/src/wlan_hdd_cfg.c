@@ -4088,6 +4088,14 @@ REG_TABLE_ENTRY g_registry_table[] =
                 CFG_ENABLE_NON_DFS_CHAN_ON_RADAR_MIN,
                 CFG_ENABLE_NON_DFS_CHAN_ON_RADAR_MAX),
 
+    REG_VARIABLE(CFG_ARP_AC_CATEGORY, WLAN_PARAM_Integer,
+                 hdd_config_t, arp_ac_category,
+                 VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+                 CFG_ARP_AC_CATEGORY_DEFAULT,
+                 CFG_ARP_AC_CATEGORY_MIN,
+                 CFG_ARP_AC_CATEGORY_MAX),
+
+
 };
 
 #ifdef WLAN_FEATURE_MBSSID
@@ -4698,6 +4706,12 @@ void print_hdd_cfg(hdd_context_t *pHddCtx)
   VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH,
             "Name = [gEnableDumpCollect] Value = [%u]",
                      pHddCtx->cfg_ini->is_ramdump_enabled);
+
+  VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH,
+            "Name = [%s] Value = [%u]",
+               CFG_ARP_AC_CATEGORY,
+               pHddCtx->cfg_ini->arp_ac_category);
+
 
 }
 
