@@ -183,6 +183,15 @@
 #define LINK_STATUS_VHT		0x1
 #define LINK_STATUS_MIMO	0x2
 #define LINK_RATE_VHT		0x3
+
+#ifdef FEATURE_WLAN_EXTSCAN
+/*
+ * Maximum number of entires that could be present in the
+ * WMI_EXTSCAN_HOTLIST_MATCH_EVENT buffer from the firmware
+ */
+#define WMA_EXTSCAN_MAX_HOTLIST_ENTRIES 10
+#endif
+
 /* Data rate 100KBPS based on IE Index */
 struct index_data_rate_type
 {
@@ -2802,7 +2811,7 @@ static int wma_extscan_hotlist_match_event_handler(void *handle,
 	tSirWifiScanResultEvent  *dest_hotlist;
 	tSirWifiScanResult      *dest_ap;
 	wmi_extscan_wlan_descriptor    *src_hotlist;
-	int numap;
+	uint32_t numap;
 	int j;
 	tpAniSirGlobal pMac = (tpAniSirGlobal )vos_get_context(
 					VOS_MODULE_ID_PE, wma->vos_context);
@@ -2828,6 +2837,14 @@ static int wma_extscan_hotlist_match_event_handler(void *handle,
 		WMA_LOGE("%s: Hotlist AP's list invalid", __func__);
 		return -EINVAL;
 	}
+    
+	if (numap > WMA_EXTSCAN_MAX_HOTLIST_ENTRIES) {
+		WMA_LOGE("%s: Total Entries %u greater than max",
+			  __func__, numap);
+		numap = WMA_EXTSCAN_MAX_HOTLIST_ENTRIES;
+	}
+
+    
 	dest_hotlist = vos_mem_malloc(sizeof(*dest_hotlist) +
 					sizeof(*dest_ap) * numap);
 	if (!dest_hotlist) {
