@@ -339,6 +339,8 @@ ol_rx_indication_handler(
 #endif
                 rx_mpdu_desc =
                     htt_rx_mpdu_desc_list_next(htt_pdev, rx_ind_msg);
+               // printk("%d\n", htt_rx_mpdu_desc_seq_num(htt_pdev, rx_mpdu_desc) );
+
                 ret = htt_rx_msdu_center_freq(htt_pdev, peer, rx_mpdu_desc,
                                               &center_freq, &chan1, &chan2, &phymode);
                 if (ret == A_TRUE) {

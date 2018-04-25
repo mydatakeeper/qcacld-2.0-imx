@@ -2259,7 +2259,7 @@ eHalStatus sme_SetEseBeaconRequest(tHalHandle hHal, const tANI_U8 sessionId,
 
    if(status != eHAL_STATUS_SUCCESS)
       pSmeRrmContext->eseBcnReqInProgress = FALSE;
-
+   vos_mem_free(pSmeBcnReportReq);
    return status;
 }
 
@@ -3336,7 +3336,10 @@ VOS_STATUS sme_get_ap_channel_from_scan_cache(tHalHandle hHal,
                     FL("Aquiring lock failed"));
        ret_status = VOS_STATUS_E_FAILURE;
    }
-
+   
+   if (NULL != profile)
+       csrFreeScanFilter(pMac, scan_filter);
+   
    vos_mem_free(scan_filter);
 
    return ret_status;

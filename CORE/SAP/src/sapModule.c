@@ -768,6 +768,7 @@ WLANSAP_StartBss
         {
             VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
                        "%s: Invalid MAC context from pvosGCtx", __func__);
+            return VOS_STATUS_E_FAULT;
         }
         else
         {

@@ -4124,13 +4124,12 @@ static VOS_STATUS sapGetChannelList(ptSapContext sapContext,
         ccmCfgGetInt(hHal, WNI_CFG_SAP_CHANNEL_SELECT_START_CHANNEL, &cfg_startChannelNum);
         ccmCfgGetInt(hHal, WNI_CFG_SAP_CHANNEL_SELECT_END_CHANNEL, &cfg_endChannelNum);
         ccmCfgGetInt(hHal, WNI_CFG_SAP_CHANNEL_SELECT_OPERATING_BAND, &operatingBand);
-
+        startChannelNum = cfg_startChannelNum;
+        endChannelNum = cfg_endChannelNum;
         VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO,
                  "%s: startChannel %d,EndChannel %d,Operatingband:%d",
                  __func__,startChannelNum,endChannelNum,operatingBand);
 
-        startChannelNum = cfg_startChannelNum;
-        endChannelNum = cfg_endChannelNum;
         WLANSAP_extend_to_acs_range(operatingBand, &startChannelNum, &endChannelNum,
                                 &bandStartChannel, &bandEndChannel);
 

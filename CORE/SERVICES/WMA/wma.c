@@ -4349,6 +4349,10 @@ static int wma_unified_phyerr_rx_event_handler(void * handle,
     int error = 0;
     tpAniSirGlobal mac_ctx = (tpAniSirGlobal)vos_get_context(VOS_MODULE_ID_PE,
                                                               wma->vos_context);
+    if (NULL == mac_ctx) {
+        WMA_LOGE("%s: mac_ctx is NULL", __func__);
+        return 0;
+    }                                                      
     bool enable_log = mac_ctx->sap.enable_dfs_phy_error_logs;
 
     param_tlvs = (WMI_PHYERR_EVENTID_param_tlvs *)data;
@@ -9559,6 +9563,11 @@ VOS_STATUS wma_vdev_start(tp_wma_handle wma,
 
 	pmac = (tpAniSirGlobal)
 		vos_get_context(VOS_MODULE_ID_PE, wma->vos_context);
+	if (pmac == NULL) {
+		WMA_LOGE("%s: vdev start failed as pmac is NULL", __func__);
+		return VOS_STATUS_E_FAILURE;
+	}
+	
 	dfs = (struct ath_dfs *)wma->dfs_ic->ic_dfs;
 
 	WMA_LOGD("%s: Enter isRestart=%d vdev=%d", __func__, isRestart,req->vdev_id);
@@ -23976,25 +23985,17 @@ VOS_STATUS wma_process_ch_avoid_update_req(tp_wma_handle wma_handle,
 void wma_scan_completion_timeout(void *data)
 {
         tp_wma_handle wma_handle;
-        tSirScanOffloadEvent *scan_event;
         u_int8_t vdev_id;
 
         WMA_LOGE("%s: Timeout occured for scan command", __func__);
 
         wma_handle = (tp_wma_handle) data;
 
-        scan_event = (tSirScanOffloadEvent *) vos_mem_malloc
-                                (sizeof(tSirScanOffloadEvent));
-        if (!scan_event) {
-                WMA_LOGE("%s: Memory allocation failed for tSirScanOffloadEvent", __func__);
-                return;
-        }
 
         vdev_id = wma_handle->wma_scan_timer_info.vdev_id;
 
         if (wma_handle->wma_scan_timer_info.scan_id !=
                 wma_handle->interfaces[vdev_id].scan_info.scan_id) {
-                vos_mem_free(scan_event);
                 WMA_LOGE("%s: Scan ID mismatch", __func__);
                 return;
         }
@@ -27107,7 +27108,6 @@ int wma_dfs_indicate_radar(struct ieee80211com *ic,
 	bool indication_status;
 
 	wma = (tp_wma_handle) vos_get_context(VOS_MODULE_ID_WDA, vos_context);
-
 	if (wma == NULL)
 	{
 		WMA_LOGE("%s: DFS- Invalid wma", __func__);
@@ -27117,7 +27117,12 @@ int wma_dfs_indicate_radar(struct ieee80211com *ic,
 	hdd_ctx = vos_get_context(VOS_MODULE_ID_HDD,wma->vos_context);
 	pmac = (tpAniSirGlobal)
 		vos_get_context(VOS_MODULE_ID_PE, wma->vos_context);
-
+	if (pmac == NULL) 
+	{
+		WMA_LOGE("%s: vdev start failed as pmac is NULL", __func__);
+		return VOS_STATUS_E_FAILURE;
+	}
+	
 	if (wma->dfs_ic != ic)
 	{
 		WMA_LOGE("%s:DFS- Invalid WMA handle",__func__);

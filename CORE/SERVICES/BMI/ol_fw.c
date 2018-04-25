@@ -1243,6 +1243,8 @@ void ol_target_failure(void *instance, A_STATUS status)
 	A_UINT8 *dbglog_data;
 	void *vos_context = vos_get_global_context(VOS_MODULE_ID_WDA, NULL);
 	tp_wma_handle wma = vos_get_context(VOS_MODULE_ID_WDA, vos_context);
+	if (wma == NULL)
+	    return;
 #else
 	int ret;
 #endif

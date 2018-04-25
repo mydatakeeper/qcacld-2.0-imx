@@ -6187,6 +6187,7 @@ static int wlan_hdd_cfg80211_start_bss(hdd_adapter_t *pHostapdAdapter,
         {
             hddLog(LOGE, "sme_UpdateConfig() for ACS Scan band pref Fail: %d",
                                                                      halStatus);
+            vos_mem_free(psmeConfig);
             return -EAGAIN;
         }
         pConfig->scanBandPreference = psmeConfig->csrConfig.scanBandPreference;

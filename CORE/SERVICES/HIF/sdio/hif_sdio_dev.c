@@ -61,7 +61,6 @@
  * To align with LL case, we also need 2 mbox support just as PCIe LL cases.
  */
 
-#define INVALID_MAILBOX_NUMBER 0xFF
 A_UINT8 HIFDevMapPipeToMailBox(HIF_SDIO_DEVICE *pDev, A_UINT8 pipeid)
 {
     // TODO: temp version, should not hardcoded here, will be updated after HIF design

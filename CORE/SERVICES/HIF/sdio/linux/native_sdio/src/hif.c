@@ -424,8 +424,10 @@ __HIFReadWrite(HIF_DEVICE *device,
                           ret, address, length, *(int *)tbuffer));
             } else {
                 ret = sdio_memcpy_toio(device->func, address, tbuffer, length);
-                AR_DEBUG_PRINTF(ATH_DEBUG_TRACE, ("AR6000: writeio ret=%d address: 0x%X, len: %d, 0x%X\n",
+                if (tbuffer != NULL){
+                    AR_DEBUG_PRINTF(ATH_DEBUG_TRACE, ("AR6000: writeio ret=%d address: 0x%X, len: %d, 0x%X\n",
                           ret, address, length, *(int *)tbuffer));
+                }
             }
         } else if (request & HIF_READ) {
 #if HIF_USE_DMA_BOUNCE_BUFFER
@@ -445,8 +447,10 @@ __HIFReadWrite(HIF_DEVICE *device,
                           ret, address, length, *(int *)tbuffer));
             } else {
                 ret = sdio_memcpy_fromio(device->func, tbuffer, address, length);
-                AR_DEBUG_PRINTF(ATH_DEBUG_TRACE, ("AR6000: readio ret=%d address: 0x%X, len: %d, 0x%X\n",
+                if (tbuffer != NULL){
+                    AR_DEBUG_PRINTF(ATH_DEBUG_TRACE, ("AR6000: readio ret=%d address: 0x%X, len: %d, 0x%X\n",
                           ret, address, length, *(int *)tbuffer));
+                }
             }
 #if HIF_USE_DMA_BOUNCE_BUFFER
             if (bounced) {

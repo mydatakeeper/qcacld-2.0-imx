@@ -3540,11 +3540,13 @@ void limProcessSmeGetAssocSTAsInfo(tpAniSirGlobal pMac, tANI_U32 *pMsgBuf)
     tANI_U8                 assocId = 0;
     tANI_U8                 staCount = 0;
 
+    vos_mem_zero(&getAssocSTAsReq, sizeof(getAssocSTAsReq));
+    
     if (!limIsSmeGetAssocSTAsReqValid(pMac, &getAssocSTAsReq, (tANI_U8 *) pMsgBuf))
     {
         limLog(pMac, LOGE,
                         FL("received invalid eWNI_SME_GET_ASSOC_STAS_REQ message"));
-        goto limAssocStaEnd;
+        return;
     }
 
     switch (getAssocSTAsReq.modId)
@@ -3651,11 +3653,13 @@ void limProcessSmeGetWPSPBCSessions(tpAniSirGlobal pMac, tANI_U32 *pMsgBuf)
 
     sapEvent.sapevt.sapGetWPSPBCSessionEvent.status = VOS_STATUS_E_FAULT;
 
+    vos_mem_zero(&GetWPSPBCSessionsReq, sizeof(GetWPSPBCSessionsReq));     
+    
     if (limIsSmeGetWPSPBCSessionsReqValid(pMac,  &GetWPSPBCSessionsReq, (tANI_U8 *) pMsgBuf) != eSIR_SUCCESS)
     {
         limLog(pMac, LOGE,
                         FL("received invalid eWNI_SME_GET_ASSOC_STAS_REQ message"));
-        goto limGetWPSPBCSessionsEnd;
+        return;
     }
 
     // Get Associated stations from PE
@@ -3700,7 +3704,8 @@ void limProcessSmeGetWPSPBCSessions(tpAniSirGlobal pMac, tANI_U32 *pMsgBuf)
 
 limGetWPSPBCSessionsEnd:
     pSapEventCallback   = (tpWLAN_SAPEventCB)GetWPSPBCSessionsReq.pSapEventCallback;
-    pSapEventCallback(&sapEvent, GetWPSPBCSessionsReq.pUsrContext);
+    if (NULL != pSapEventCallback)
+        pSapEventCallback(&sapEvent, GetWPSPBCSessionsReq.pUsrContext);
 }
 
 
@@ -5357,6 +5362,7 @@ __limInsertSingleShotNOAForScan(tpAniSirGlobal pMac, tANI_U32 noaDuration)
         limLog(pMac, LOGP, FL("wdaPost Msg failed"));
         /* Deactivate the NOA timer in failure case */
         limDeactivateAndChangeTimer(pMac, eLIM_INSERT_SINGLESHOT_NOA_TIMER);
+        vos_mem_free(pMsgNoA);
         goto error;
     }
     return FALSE;

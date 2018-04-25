@@ -612,10 +612,10 @@ static A_STATUS HTCProcessTrailer(HTC_TARGET     *target,
     A_UINT8                 htc_rec_id;
     A_UINT8                 htc_rec_len;
     A_UINT8                 *pRecordBuf;
+    //A_UINT32                 *pRecordBuf32;
     A_UINT8                 *pOrigBuffer;
     int                     origLength;
     A_STATUS                status;
-
     AR_DEBUG_PRINTF(ATH_DEBUG_RECV, ("+HTCProcessTrailer (length:%d) \n", Length));
 
     if (AR_DEBUG_LVL_CHECK(ATH_DEBUG_RECV)) {
@@ -662,7 +662,9 @@ static A_STATUS HTCProcessTrailer(HTC_TARGET     *target,
 
 #ifdef HIF_SDIO
             case HTC_RECORD_LOOKAHEAD:
-                /* Process in HIF layer */
+                //pRecordBuf32 = (A_UINT32*)pRecordBuf;
+                //printk("0x%x\n", pRecordBuf32[0]);
+                /* Process in HIF layer */            
                 break;
 
             case HTC_RECORD_LOOKAHEAD_BUNDLE:

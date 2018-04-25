@@ -10970,15 +10970,23 @@ void csrRoamWaitForKeyTimeOutHandler(void *pv)
     tpAniSirGlobal pMac = pInfo->pMac;
     tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, pInfo->sessionId );
     eHalStatus status = eHAL_STATUS_FAILURE;
-
-    smsLog(pMac, LOGW, FL("WaitForKey timer expired in state=%s sub-state=%s"),
-           macTraceGetNeighbourRoamState(
-           pMac->roam.neighborRoamInfo[pInfo->sessionId].neighborRoamState),
-           macTraceGetcsrRoamSubState(
-           pMac->roam.curSubState[pInfo->sessionId]));
-
+    if(NULL == pSession) {  
+        smsLog(pMac, LOGE, "%s: session not found", __func__);
+        return;
+    }
+    if(CSR_IS_SESSION_VALID(pMac, pInfo->sessionId )){
+        smsLog(pMac, LOGW, FL("WaitForKey timer expired in state=%s sub-state=%s"),
+            macTraceGetNeighbourRoamState(
+            pMac->roam.neighborRoamInfo[pInfo->sessionId].neighborRoamState),
+            macTraceGetcsrRoamSubState(
+            pMac->roam.curSubState[pInfo->sessionId]));
+    }
     if( CSR_IS_WAIT_FOR_KEY( pMac, pInfo->sessionId ) )
     {
+        //Change the substate so command queue is unblocked.
+        if (CSR_ROAM_SESSION_MAX > pInfo->sessionId)
+            pMac->roam.curSubState[pInfo->sessionId] = eCSR_ROAM_SUBSTATE_NONE;
+
 #ifdef FEATURE_WLAN_LFR
         if (csrNeighborRoamIsHandoffInProgress(pMac, pInfo->sessionId))
         {
@@ -10995,13 +11003,6 @@ void csrRoamWaitForKeyTimeOutHandler(void *pv)
         }
 #endif
         smsLog(pMac, LOGE, " SME pre-auth state timeout. ");
-
-        //Change the substate so command queue is unblocked.
-        if (CSR_ROAM_SESSION_MAX > pInfo->sessionId)
-        {
-            csrRoamSubstateChange(pMac, eCSR_ROAM_SUBSTATE_NONE,
-                                  pInfo->sessionId);
-        }
 
         if (pSession)
         {
@@ -17938,6 +17939,7 @@ csrRoamIssueFTPreauthReq(tHalHandle hHal, tANI_U32 sessionId,
     {
         smsLog(pMac, LOGE,
                FL("Memory allocation for FT Preauth request failed"));
+        vos_mem_free(pftPreAuthReq);
         return eHAL_STATUS_RESOURCES;
     }
 
@@ -18521,7 +18523,6 @@ csrRoamModifyAddIEs(tpAniSirGlobal pMac,
            FL("Failed to send eWNI_SME_UPDATE_ADDTIONAL_IES msg"
            "!!! status %d"), status);
        vos_mem_free(pLocalBuffer);
-       vos_mem_free(pModifyAddIEInd);
     }
     return status;
 }
@@ -18595,7 +18596,6 @@ csrRoamUpdateAddIEs(tpAniSirGlobal pMac,
            FL("Failed to send eWNI_SME_UPDATE_ADDTIONAL_IES msg"
            "!!! status %d"), status);
        vos_mem_free(pLocalBuffer);
-       vos_mem_free(pUpdateAddIEs);
     }
     return status;
 }

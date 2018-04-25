@@ -78,7 +78,7 @@ htt_tx_attach(struct htt_pdev_t *pdev, int desc_pool_elems)
 {
     int i, pool_size;
     u_int32_t **p;
-    adf_os_dma_addr_t pool_paddr;
+    adf_os_dma_addr_t pool_paddr = 0;
 
     if (pdev->cfg.is_high_latency) {
         pdev->tx_descs.size = sizeof(struct htt_host_tx_desc_t);
