@@ -552,7 +552,7 @@ static char *ol_board_id_to_filename(struct ol_softc *scn, uint16_t board_id)
 	if (board_id > 0xFF)
 		board_id = 0x0;
 
-	snprintf(&dest[input_len - 2], 3, "%.2x", board_id);
+	//snprintf(&dest[input_len - 2], 3, "%.2x", board_id);
 out:
 	return dest;
 }
@@ -2314,6 +2314,7 @@ int ol_download_firmware(struct ol_softc *scn)
 	}
 
 	address = BMI_SEGMENTED_WRITE_ADDR;
+#if 0
 	if (scn->enablesinglebinary == FALSE) {
 		if (ol_transfer_bin_file(scn, ATH_SETUP_FILE,
 					BMI_SEGMENTED_WRITE_ADDR, TRUE) == EOK) {
@@ -2322,6 +2323,7 @@ int ol_download_firmware(struct ol_softc *scn)
 			BMIExecute(scn->hif_hdl, address, &param, scn);
 		}
 	}
+#endif
 
 	/* Download Target firmware - TODO point to target specific files in runtime */
 	if (ol_transfer_bin_file(scn, ATH_FIRMWARE_FILE, address, TRUE) != EOK) {
