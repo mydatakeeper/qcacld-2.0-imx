@@ -2033,9 +2033,9 @@ HIFExchangeBMIMsg(HIF_DEVICE *hif_device,
     struct CE_handle *ce_recv = recv_pipe_info->ce_hdl;
 
 #ifdef BMI_RSP_POLLING
+    int i;
     CE_addr_t buf;
     unsigned int completed_nbytes, id, flags;
-    int i;
 #endif
 
     AR_DEBUG_PRINTF(ATH_DEBUG_TRC, (" %s\n",__FUNCTION__));
@@ -2092,8 +2092,9 @@ HIFExchangeBMIMsg(HIF_DEVICE *hif_device,
 
     /* Wait for BMI request/response transaction to complete */
     /* Always just wait for BMI request here if BMI_RSP_POLLING is defined */
-    while (adf_os_mutex_acquire(scn->adf_dev, &transaction->bmi_transaction_sem)) {
-        /*need some break out condition(time out?)*/
+    if (adf_os_mutex_acquire_timeout(scn->adf_dev, &transaction->bmi_transaction_sem, HZ)) {
+	printk("%s:error, can't get bmi response\n", __func__);
+	status = A_EBUSY;
     }
 
     if (bmi_response) {
