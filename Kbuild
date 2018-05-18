@@ -1470,9 +1470,7 @@ endif
 
 #Mark it as SMP Kernel
 ifeq ($(CONFIG_SMP),y)
-ifneq ($(CONFIG_ROME_IF), sdio)
 CDEFINES += -DQCA_CONFIG_SMP
-endif
 endif
 
 #rps feature
