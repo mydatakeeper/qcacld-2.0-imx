@@ -970,7 +970,7 @@ VOS_STATUS hdd_softap_rx_packet_cbk(v_VOID_t *vosContext,
 
       skb = skb_next;
    }
-   pAdapter->dev->last_rx = jiffies;
+   //pAdapter->dev->last_rx = jiffies;
 
    return VOS_STATUS_SUCCESS;
 }

@@ -2382,7 +2382,7 @@ hif_pci_configure(struct hif_pci_softc *sc, hif_handle_t *hif_hdl)
         int rv;
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0)) || defined(WITH_BACKPORTS)
-        rv = pci_enable_msi_range(sc->pdev, MSI_NUM_REQUEST, MSI_NUM_REQUEST);
+        rv = pci_alloc_irq_vectors(sc->pdev, MSI_NUM_REQUEST, MSI_NUM_REQUEST, PCI_IRQ_MSI);
 #else
         rv = pci_enable_msi_block(sc->pdev, MSI_NUM_REQUEST);
 #endif
@@ -2554,7 +2554,7 @@ err_stalled:
     hif_nointrs(sc);
 err_intr:
     if (num_msi_desired) {
-        pci_disable_msi(sc->pdev);
+	pci_free_irq_vectors(sc->pdev);
     }
     pci_set_drvdata(sc->pdev, NULL);
 
@@ -2592,7 +2592,7 @@ hif_pci_remove(struct pci_dev *pdev)
 
     mem = (void __iomem *)sc->mem;
 
-    pci_disable_msi(pdev);
+    pci_free_irq_vectors(pdev);
 
     hif_dump_pipe_debug_count(sc->hif_device);
 
@@ -2665,7 +2665,7 @@ void hif_pci_shutdown(struct pci_dev *pdev)
 
     mem = (void __iomem *)sc->mem;
 
-    pci_disable_msi(pdev);
+    pci_free_irq_vectors(pdev);
 
     hif_pci_pm_runtime_ssr_post_exit(sc);
     hif_deinit_adf_ctx(scn);

@@ -42,6 +42,7 @@
 #include <vos_trace.h>
 #include <linux/jiffies.h>
 #include <linux/sched.h>
+#include <linux/sched/signal.h>
 #include <linux/delay.h>
 #include <linux/interrupt.h>
 

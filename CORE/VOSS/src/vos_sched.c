@@ -559,8 +559,8 @@ vos_sched_open
        return VOS_STATUS_E_FAILURE;
   }
   SPIN_UNLOCK_BH(&pSchedContext->VosTlshimPktFreeQLock);
-  register_hotcpu_notifier(&vos_cpu_hotplug_notifier);
-  pSchedContext->cpuHotPlugNotifier = &vos_cpu_hotplug_notifier;
+  //register_hotcpu_notifier(&vos_cpu_hotplug_notifier);
+  //pSchedContext->cpuHotPlugNotifier = &vos_cpu_hotplug_notifier;
   vos_lock_init(&pSchedContext->affinity_lock);
   pSchedContext->high_throughput_required = false;
 #endif
@@ -643,7 +643,7 @@ MC_THREAD_START_FAILURE:
 
 
 #ifdef QCA_CONFIG_SMP
-  unregister_hotcpu_notifier(&vos_cpu_hotplug_notifier);
+  //unregister_hotcpu_notifier(&vos_cpu_hotplug_notifier);
   vos_free_tlshim_pkt_freeq(gpVosSchedContext);
 #endif
 
@@ -1610,7 +1610,7 @@ VOS_STATUS vos_sched_close ( v_PVOID_t pVosContext )
     gpVosSchedContext->TlshimRxThread = NULL;
     vos_drop_rxpkt_by_staid(gpVosSchedContext, WLAN_MAX_STA_COUNT);
     vos_free_tlshim_pkt_freeq(gpVosSchedContext);
-    unregister_hotcpu_notifier(&vos_cpu_hotplug_notifier);
+    //unregister_hotcpu_notifier(&vos_cpu_hotplug_notifier);
 #endif
     return VOS_STATUS_SUCCESS;
 } /* vox_sched_close() */

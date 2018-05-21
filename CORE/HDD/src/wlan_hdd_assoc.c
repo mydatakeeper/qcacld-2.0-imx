@@ -762,8 +762,8 @@ static void hdd_copy_vht_operation(hdd_station_ctx_t *hdd_sta_ctx,
 	adf_os_mem_zero(hdd_vht_ops, sizeof(struct ieee80211_vht_operation));
 
 	hdd_vht_ops->chan_width = roam_vht_ops->chanWidth;
-	hdd_vht_ops->center_freq_seg1_idx = roam_vht_ops->chanCenterFreqSeg1;
-	hdd_vht_ops->center_freq_seg2_idx = roam_vht_ops->chanCenterFreqSeg2;
+	hdd_vht_ops->center_freq_seg0_idx = roam_vht_ops->chanCenterFreqSeg1;
+	hdd_vht_ops->center_freq_seg1_idx = roam_vht_ops->chanCenterFreqSeg2;
 	hdd_vht_ops->basic_mcs_set = roam_vht_ops->basicMCSSet;
 }
 
@@ -2070,6 +2070,7 @@ static void hdd_SendReAssocEvent(struct net_device *dev,
     uint8_t *buf_ptr, ssid_ie_len;
     struct cfg80211_bss *bss = NULL;
     uint8_t *final_req_ie = NULL;
+    struct cfg80211_roam_info roam_info;
     tCsrRoamConnectedProfile roam_profile;
     tHalHandle hal_handle = WLAN_HDD_GET_HAL_CTX(pAdapter);
 
@@ -2147,9 +2148,13 @@ static void hdd_SendReAssocEvent(struct net_device *dev,
     hddLog(LOG2, FL("Req RSN IE:"));
     VOS_TRACE_HEX_DUMP(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_DEBUG,
        final_req_ie, (ssid_ie_len +reqRsnLength));
-    cfg80211_roamed_bss(dev, bss,
-       final_req_ie, (ssid_ie_len + reqRsnLength),
-       rspRsnIe, rspRsnLength, GFP_KERNEL);
+
+    roam_info.bss = bss;
+    roam_info.req_ie = final_req_ie;
+    roam_info.req_ie_len = (ssid_ie_len + reqRsnLength);
+    roam_info.resp_ie = rspRsnIe;
+    roam_info.resp_ie_len = rspRsnLength;
+    cfg80211_roamed(dev, &roam_info, GFP_KERNEL);
 
     hdd_send_roam_auth_event(pHddCtx, pCsrRoamInfo->bssid,
                     reqRsnIe, reqRsnLength, rspRsnIe,
@@ -2553,6 +2558,7 @@ static eHalStatus hdd_AssociationCompletionHandler( hdd_adapter_t *pAdapter, tCs
                     if ( !hddDisconInProgress )
                     {
                         struct cfg80211_bss *roam_bss;
+			struct cfg80211_roam_info roam_info;
 
                         /* After roaming is completed, active session count is
                          * incremented as a part of connect indication but
@@ -2577,10 +2583,13 @@ static eHalStatus hdd_AssociationCompletionHandler( hdd_adapter_t *pAdapter, tCs
                                pConnectedProfile->SSID.ssId,
                                pRoamInfo->u.
                                pConnectedProfile->SSID.length);
-                        cfg80211_roamed_bss(dev, roam_bss,
-                               pFTAssocReq, assocReqlen,
-                               pFTAssocRsp, assocRsplen,
-                               GFP_KERNEL);
+
+			roam_info.bss = roam_bss;
+			roam_info.req_ie = pFTAssocReq;
+			roam_info.req_ie_len = assocReqlen;
+			roam_info.resp_ie = pFTAssocRsp;
+			roam_info.resp_ie_len = assocRsplen;
+			cfg80211_roamed(dev, &roam_info, GFP_KERNEL);
                     }
                     if (sme_GetFTPTKState(WLAN_HDD_GET_HAL_CTX(pAdapter),
                                           pAdapter->sessionId))

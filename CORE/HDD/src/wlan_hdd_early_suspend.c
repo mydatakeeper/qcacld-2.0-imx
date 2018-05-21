@@ -2162,7 +2162,7 @@ VOS_STATUS hdd_wlan_shutdown(void)
    /* Wait for TLshim RX to exit */
    hddLog(VOS_TRACE_LEVEL_FATAL, "%s: Shutting down TLshim RX thread",
           __func__);
-   unregister_hotcpu_notifier(vosSchedContext->cpuHotPlugNotifier);
+   //unregister_hotcpu_notifier(vosSchedContext->cpuHotPlugNotifier);
    set_bit(RX_SHUTDOWN_EVENT, &vosSchedContext->tlshimRxEvtFlg);
    set_bit(RX_POST_EVENT, &vosSchedContext->tlshimRxEvtFlg);
    wake_up_interruptible(&vosSchedContext->tlshimRxWaitQueue);

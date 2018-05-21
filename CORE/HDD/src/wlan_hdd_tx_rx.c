@@ -1260,7 +1260,7 @@ VOS_STATUS hdd_mon_rx_packet_cbk(v_VOID_t *vos_ctx, adf_nbuf_t rx_buf,
 		skb = skb_next;
 	}
 
-	adapter->dev->last_rx = jiffies;
+	//adapter->dev->last_rx = jiffies;
 
 	return VOS_STATUS_SUCCESS;
 }
@@ -1318,7 +1318,7 @@ VOS_STATUS hdd_vir_mon_rx_cbk(v_VOID_t *vos_ctx, adf_nbuf_t rx_buf,
 		skb = skb_next;
 	}
 
-	adapter->dev->last_rx = jiffies;
+	//adapter->dev->last_rx = jiffies;
 
 	return VOS_STATUS_SUCCESS;
 }
@@ -1566,7 +1566,7 @@ VOS_STATUS hdd_rx_packet_cbk(v_VOID_t *vosContext,
       skb = skb_next;
    }
 
-   pAdapter->dev->last_rx = jiffies;
+   //pAdapter->dev->last_rx = jiffies;
 
    return VOS_STATUS_SUCCESS;
 }
