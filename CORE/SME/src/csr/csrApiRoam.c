@@ -8712,6 +8712,8 @@ void csrRoamingStateMsgProcessor( tpAniSirGlobal pMac, void *pMsgBuf )
     tSirSmeRsp *pSmeRsp;
     tSmeIbssPeerInd *pIbssPeerInd;
     tCsrRoamInfo roamInfo;
+    tSirSmeDisassocRsp* pDisassocRsp;
+    tCsrRoamSession  *pSession;
         // TODO Session Id need to be acquired in this function
         tANI_U32 sessionId = 0;
     pSmeRsp = (tSirSmeRsp *)pMsgBuf;
@@ -8764,8 +8766,20 @@ void csrRoamingStateMsgProcessor( tpAniSirGlobal pMac, void *pMsgBuf )
             break;
             
         case eWNI_SME_DISCONNECT_DONE_IND:
-            printk("csrRoamRoamingStateDisassocRspProcessor eWNI_SME_DISCONNECT_DONE_IND\n");
-            csrRoamRoamingStateDisassocRspProcessor( pMac, (tSirSmeDisassocRsp *)pSmeRsp );
+            pDisassocRsp = (tSirSmeDisassocRsp *)pSmeRsp;
+            sessionId = pDisassocRsp->sessionId;
+            printk("%s eWNI_SME_DISCONNECT_DONE_IND sessionId=0x%X\n", __func__, sessionId);
+            if( CSR_IS_SESSION_VALID(pMac, sessionId) )
+            {
+                pSession = CSR_GET_SESSION(pMac, sessionId);
+                printk("%s BSSType=0x%X\n", __func__, (&pSession->connectedProfile)->BSSType);
+                if ( CSR_IS_INFRA_AP(&pSession->connectedProfile) )
+                {
+                    printk("%s AP mode\n", __func__);
+                    csrRoamRoamingStateDisassocRspProcessor( pMac, (tSirSmeDisassocRsp *)pSmeRsp );
+                }
+            }			
+			
             break;
             
         case eWNI_SME_DEAUTH_RSP:    // or the Deauthentication response message...
