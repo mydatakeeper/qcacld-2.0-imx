@@ -22590,6 +22590,7 @@ VOS_STATUS wma_mc_process_msg(v_VOID_t *vos_context, vos_msg_t *msg)
 
 		case WDA_SET_THERMAL_LEVEL:
 			wma_process_set_thermal_level(wma_handle, (u_int8_t *) msg->bodyptr);
+            vos_mem_free(msg->bodyptr);
 			break;
 
 		case WDA_SET_P2P_GO_NOA_REQ:
@@ -27120,7 +27121,7 @@ int wma_dfs_indicate_radar(struct ieee80211com *ic,
 	if (pmac == NULL) 
 	{
 		WMA_LOGE("%s: vdev start failed as pmac is NULL", __func__);
-		return VOS_STATUS_E_FAILURE;
+		return -ENOENT;
 	}
 	
 	if (wma->dfs_ic != ic)

@@ -4096,15 +4096,15 @@ sapIsPeerMacAllowed(ptSapContext sapContext, v_U8_t *peerMac)
 static VOS_STATUS sapGetChannelList(ptSapContext sapContext,
                                  v_U8_t **channelList, v_U8_t *numberOfChannels)
 {
-    v_U32_t cfg_startChannelNum;
-    v_U32_t cfg_endChannelNum;
-    v_U32_t operatingBand;
+    v_U32_t cfg_startChannelNum = 0;
+    v_U32_t cfg_endChannelNum = 0;
+    v_U32_t operatingBand = 0;
     v_U8_t  loopCount;
     v_U8_t *list;
     v_U8_t channelCount;
     v_U8_t startChannelNum, bandStartChannel;
     v_U8_t endChannelNum, bandEndChannel ;
-    v_U32_t enableLTECoex;
+    v_U32_t enableLTECoex = 0;
     tHalHandle hHal = VOS_GET_HAL_CB(sapContext->pvosGCtx);
 #ifdef FEATURE_WLAN_CH_AVOID
     v_U8_t i;
