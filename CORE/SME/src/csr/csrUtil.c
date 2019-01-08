@@ -2217,7 +2217,8 @@ tANI_U16 csrCalculateMCCBeaconInterval(tpAniSirGlobal pMac, tANI_U16 sta_bi, tAN
        go_cbi = 100;
     //if GO's given beacon Interval is greater than or equal to 100
     else
-       go_cbi = 100 + (go_gbi % 100);
+      // go_cbi = 100 + (go_gbi % 100);
+        go_cbi = 100 + ((go_gbi - 1) / 100) * 100;   
 
     if ( sta_bi == 0 )
     {
